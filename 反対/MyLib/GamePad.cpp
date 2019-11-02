@@ -69,7 +69,7 @@ HRESULT		InitControllers()
 	}
 
 	// DirectInput
-	dInput.InitDirectInput();
+//	dInput.InitDirectInput();
 
 	return S_OK;
 }
@@ -90,7 +90,7 @@ HRESULT		UpdateControllerState()
 	ChackInputState();
 
 	// DirectInput
-	dInput.UpdateDirectInput();
+//	dInput.UpdateDirectInput();
 
 	return S_OK;
 }
@@ -99,6 +99,9 @@ void ChackInputState()
 {
 	for (int s = 0; s < TRG_NUM_MAX; s++)
 	{
+		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbLX, controllers[s].state.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbRX, controllers[s].state.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+
 		for (int i = 0; i < BUTTONS::DPAD_END; i++)
 		{
 			if (InputState(config_tbl[i], s))
@@ -113,17 +116,17 @@ void ChackInputState()
 	}
 
 	//dInput
-	for (int i = 0; i < 4; i++)
-	{
-		if (DPadInputState(i))
-		{
-			dInput.dPadTriggerCount[i]++;
-		}
-		else
-		{
-			dInput.dPadTriggerCount[i] = 0;
-		}
-	}
+//	for (int i = 0; i < 4; i++)
+//	{
+//		if (DPadInputState(i))
+//		{
+//			dInput.dPadTriggerCount[i]++;
+//		}
+//		else
+//		{
+//			dInput.dPadTriggerCount[i] = 0;
+//		}
+//	}
 }
 
 void	RenderFrame()
@@ -196,17 +199,9 @@ bool	InputState(int _input, int _padNum)
 {
 	if (_input <= 0)return false;
 
-//	for (DWORD i = 0; i < MAX_CONTROLLERS; i++)
-//	{
-//		if (!controllers[i].bConnected)continue;
-//
-//		if (controllers[i].state.Gamepad.wButtons & _input)
-//		{
-//			return true;
-//		}
-//	}
-//	return false;
 	if (!controllers[_padNum].bConnected)return false;
+
+
 
 	if (controllers[_padNum].state.Gamepad.wButtons & _input)
 	{
@@ -220,11 +215,38 @@ bool	InputState(int _input, int _padNum)
 }
 
 
+WORD ThumbToDPad(SHORT sThumbX, SHORT sThumbY, SHORT sDeadZone)
+{
+	WORD wButtons = 0;
+
+	if (sThumbY >= sDeadZone)
+	{
+		wButtons |= XINPUT_DPAD_UP;
+	}
+	else if (sThumbY <= -sDeadZone)
+	{
+		wButtons |= XINPUT_DPAD_DOWN;
+	}
+
+	if (sThumbX <= -sDeadZone)
+	{
+		wButtons |= XINPUT_DPAD_LEFT;
+	}
+	else if (sThumbX >= sDeadZone)
+	{
+		wButtons |= XINPUT_DPAD_RIGHT;
+	}
+
+	return wButtons;
+}
+
+
 
 //------------------------------------------------------------
 // DirectInput関係
 //------------------------------------------------------------
 // コールバック関数
+
 
 BOOL PASCAL EnumJoyDeviceProc(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 {

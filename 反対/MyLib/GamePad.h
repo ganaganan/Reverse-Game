@@ -79,6 +79,7 @@ extern std::map<int, int> checkButton;
 extern CONTROLLER_STATE controllers[MAX_CONTROLLERS];
 
 /*fanctions*/
+WORD ThumbToDPad( SHORT sThumbX, SHORT sThumbY, SHORT sDeadZone );
 
 // DirectInput
 #define DEADZONE 100

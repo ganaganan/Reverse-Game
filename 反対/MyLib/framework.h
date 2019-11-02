@@ -141,7 +141,6 @@ public:
 		io.Fonts->AddFontFromFileTTF("ImGui\\consolab.ttf", 10.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 		//io.Fonts->AddFontFromFileTTF(".\\Inconsolata-Bold.ttf", 12.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 #endif
-
 		while (WM_QUIT != msg.message)
 		{
 			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

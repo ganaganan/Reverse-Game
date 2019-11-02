@@ -5,6 +5,8 @@
 #include<algorithm>
 #include <cstdlib>
 #include <ctime>
+//#include "GamePad.h"
+#include "GamePad.h"
 
  ID3D11Device* framework::device = nullptr;
  ID3D11DeviceContext* framework::deviceContext = nullptr;
@@ -117,10 +119,14 @@ bool framework::initialize()
 
 	skinMesh = std::make_unique<SkinnedMesh>(device, "sitsunai.fbx");
 
+	InitControllers();
+
     return true;
 }
 void framework::update(float elapsed_time/*Elapsed seconds from last frame*/)
 {
+	UpdateControllerState();
+
 #ifdef USE_IMGUI
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -132,6 +138,16 @@ void framework::update(float elapsed_time/*Elapsed seconds from last frame*/)
 	ImGui::SliderFloat("z", &posZ, -1000.0f, 1000.0f);
 	ImGui::End();
 #endif
+
+	if (InputState(XINPUT_DPAD_UP))
+	{
+		int debug = 0;
+	}
+	if (InputState(XINPUT_DPAD_DOWN))
+	{
+		int debug = 0;
+	}
+
 }
 void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
 {

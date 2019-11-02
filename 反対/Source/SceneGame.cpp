@@ -3,6 +3,8 @@
 #include <DirectXMath.h>
 #include <framework.h>
 
+#include "Camera.h"
+
 void SceneGame::Init()
 {
 
@@ -10,7 +12,7 @@ void SceneGame::Init()
 
 void SceneGame::Update()
 {
-
+	Camera::Get().Update();
 }
 
 void SceneGame::Render()

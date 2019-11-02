@@ -1,6 +1,6 @@
 #include	"Camera.h"
 #include	<framework.h>
-
+#include	"../MyLib/GamePad.h"
 /*------------------------------------*/
 //	CameraƒNƒ‰ƒX
 /*------------------------------------*/
@@ -54,5 +54,5 @@ void Camera::Update()
 
 void Camera::Watch()
 {
-
+	
 }
