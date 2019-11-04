@@ -100,7 +100,7 @@ void ChackInputState()
 	for (int s = 0; s < TRG_NUM_MAX; s++)
 	{
 		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbLX, controllers[s].state.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbRX, controllers[s].state.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+//		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbRX, controllers[s].state.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 
 		for (int i = 0; i < BUTTONS::DPAD_END; i++)
 		{
@@ -222,6 +222,7 @@ WORD ThumbToDPad(SHORT sThumbX, SHORT sThumbY, SHORT sDeadZone)
 	if (sThumbY >= sDeadZone)
 	{
 		wButtons |= XINPUT_DPAD_UP;
+		
 	}
 	else if (sThumbY <= -sDeadZone)
 	{

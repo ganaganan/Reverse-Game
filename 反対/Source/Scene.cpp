@@ -27,10 +27,10 @@ void SceneManager::Update()
 		if (nowScene)
 		{
 			nowScene->Uninit();
-			nowScene = nextScene;
-			nextScene = nullptr;
-			nowScene->Init();
 		}
+		nowScene = nextScene;
+		nextScene = nullptr;
+		nowScene->Init();
 	}
 	nowScene->Update();
 }

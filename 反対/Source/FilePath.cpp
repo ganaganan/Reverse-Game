@@ -5,6 +5,6 @@ char* GetModelPath(ModelAttribute fileAttribute)
 	switch (fileAttribute)
 	{
 	case ModelAttribute::Stage:
-		return "sitsunai.fbx";
+		return "Data/Models/sitsunai.fbx";	//break;
 	}
 }

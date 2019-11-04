@@ -54,5 +54,34 @@ void Camera::Update()
 
 void Camera::Watch()
 {
-	
+	if (InputState(XINPUT_DPAD_RIGHT))
+	{
+		pos.x += 0.1f;
+	}
+	else if (InputState(XINPUT_DPAD_LEFT))
+	{
+		pos.x -= 0.1f;
+	}
+
+	if (InputState(XINPUT_DPAD_UP))
+	{
+		pos.z += 0.1f;
+	}
+	else if (InputState(XINPUT_DPAD_DOWN))
+	{
+		pos.z -= 0.1f;
+	}
+
+	if (InputState(XINPUT_A))
+	{
+		pos.y -= 0.1f;
+	}
+	else if (InputState(XINPUT_Y))
+	{
+		pos.y += 0.1f;
+	}
+
+	target = pos;
+
+	target.z += 1.0f;
 }

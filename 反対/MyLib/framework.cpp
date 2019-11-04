@@ -5,15 +5,13 @@
 #include<algorithm>
 #include <cstdlib>
 #include <ctime>
-//#include "GamePad.h"
 #include "GamePad.h"
+
+#include "../Source/Scene.h"
 
  ID3D11Device* framework::device = nullptr;
  ID3D11DeviceContext* framework::deviceContext = nullptr;
 
- float posX = 0.0f;
- float posY = 1.0f;
- float posZ = 0.0f;
 
 bool framework::initialize()
 {
@@ -116,10 +114,9 @@ bool framework::initialize()
 		assert(hr);
 
 	srand((unsigned int)time(NULL)); // 乱数系列の変更
-
-	skinMesh = std::make_unique<SkinnedMesh>(device, "sitsunai.fbx");
-
 	InitControllers();
+
+	SceneManager::Get().Init();
 
     return true;
 }
@@ -131,13 +128,9 @@ void framework::update(float elapsed_time/*Elapsed seconds from last frame*/)
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-
-	ImGui::Begin("pos");
-	ImGui::SliderFloat("x", &posX, -1000.0f, 1000.0f);
-	ImGui::SliderFloat("y", &posY, -1000.0f, 1000.0f);
-	ImGui::SliderFloat("z", &posZ, -1000.0f, 1000.0f);
-	ImGui::End();
 #endif
+
+	SceneManager::Get().Update();
 
 	if (InputState(XINPUT_DPAD_UP))
 	{
@@ -178,46 +171,7 @@ void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
 	//レンダーターゲットと深度ステンシルバッファのバインド
 	deviceContext->OMSetRenderTargets(1, &renderTaegetView, depthStencilView);
 
-	/************************/
-	//ワールド変換行列取得
-	/************************/
-	DirectX::XMMATRIX W, S, R, T, V;
-	DirectX::XMFLOAT4X4	world_view_projection;
-	DirectX::XMFLOAT4X4	world_m;
-	DirectX::XMFLOAT4 color(1.0f, 1.0f, 1.0f, 1.0f);
-	DirectX::XMFLOAT4 light(1.0f, -1.0f, 0.0f, 0.0f);
-	{
-		//	初期化
-		W = DirectX::XMMatrixIdentity();
-		//	拡大・縮小
-		S = DirectX::XMMatrixScaling(0.1f, 0.1f, 0.1f);
-		//	回転
-		R = DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
-		//	平行移動
-		T = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
-		//	ワールド変換行列
-		W = S * R * T;
-
-		/***************************/
-		//ビュー行列を設定
-		/***************************/
-		DirectX::XMVECTOR p = DirectX::XMVectorSet(posX, posY, posZ, 1.0f);
-		DirectX::XMVECTOR t = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-		DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		V = DirectX::XMMatrixLookAtLH(p, t, up);
-
-		/****************************/
-		//	プロジェクション行列を作成
-		/****************************/
-		float	fov = DirectX::XMConvertToRadians(30.0f);
-		float	aspect = static_cast<float>(SCREEN_WIDTH) / static_cast<float>(SCREEN_HEIGHT);
-		DirectX::XMMATRIX	projection = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, 0.1f, 1000.0f);
-		//Matrix -> Float4x4 変換
-		DirectX::XMStoreFloat4x4(&world_view_projection, W * V * projection);
-		DirectX::XMStoreFloat4x4(&world_m, W);
-	}
-
-	skinMesh->Render(deviceContext, world_view_projection, world_m, light, color);
+	SceneManager::Get().Render();
 
 #ifdef USE_IMGUI
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

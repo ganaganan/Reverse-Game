@@ -64,6 +64,10 @@ enum BUTTONS
 #define XINPUT_B				0x2000	// 8192
 #define XINPUT_X				0x4000	// 16384
 #define XINPUT_Y				0x8000	// 32768
+#define XINPUT_DPAD_RIGHT_UP	0x16000
+#define XINPUT_DPAD_RIGHT_DOWN	0x32000
+#define XINPUT_DPAD_RIGHT_LEFT	0x64000
+#define XINPUT_DPAD_RIGHT_RIGHT	0x12800
 
 #define TRG_NUM_MAX 2
 //-----------------------------------------------------------------------------
