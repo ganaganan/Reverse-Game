@@ -54,5 +54,5 @@ void Camera::Update()
 
 void Camera::Watch()
 {
-	
+	int debug = 0;
 }
