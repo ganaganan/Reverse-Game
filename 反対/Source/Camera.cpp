@@ -6,8 +6,8 @@
 /*------------------------------------*/
 Camera::Camera()
 {
-	pos = DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f);
-	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	pos = DirectX::XMFLOAT3(0.0f, 15.0f, -30.0f);
+	target = DirectX::XMFLOAT3(pos.x, pos.y, pos.z + 1.0f);
 	angle = 0.0f;
 
 	float fov = DirectX::XMConvertToRadians(30.0f);

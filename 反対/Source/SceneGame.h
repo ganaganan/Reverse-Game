@@ -21,6 +21,14 @@ class SceneGame : public BaseScene
 	};
 
 public:
+	/*----------------------------------------*/
+	// Degub variable and function
+	DirectX::XMFLOAT3	debugLightPos[3];
+	float				debugLightRange[3];
+	void UseImGui();
+	/*----------------------------------------*/
+
+public:
 	SceneGame(){}
 	void Init();
 	void Uninit();
