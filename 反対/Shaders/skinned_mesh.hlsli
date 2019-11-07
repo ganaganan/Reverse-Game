@@ -1,3 +1,4 @@
+#include "Light.hlsli"
 
 struct VS_OUT
 {
@@ -20,12 +21,22 @@ cbuffer CONSTANT_BUFFER : register(b0)
 	row_major float4x4 world_view_projection;
 	row_major float4x4 world;
 	float4 material_color;
+//	float4 light_direction;
+//
+//	float4 lightPosRight;
+//	float4 lightColorRight;
+//	float4 lightPosLeft;
+//	float4 lightColorLeft;
+//
+//	float4 attenuation;
+}
+
+cbuffer CB_LIGHT_BUFFER : register(b2)
+{
+	float4 lightColor;
 	float4 light_direction;
+	float4 ambientColor;
+	float4 eyePos;
 
-	float4 lightPosRight;
-	float4 lightColorRight;
-	float4 lightPosLeft;
-	float4 lightColorLeft;
-
-	float4 attenuation;
+	POINTLIGHT pointLight[POINTMAX];
 }

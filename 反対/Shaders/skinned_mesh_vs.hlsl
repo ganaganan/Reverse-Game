@@ -1,6 +1,6 @@
 #include "skinned_mesh.hlsli"
 
-#if 1
+#if 0
 VS_OUT main(float4 position : POSITION, float4 normal : NORMAL, float2 texcoord : TEXCOORD)
 {
 	VS_OUT vout;

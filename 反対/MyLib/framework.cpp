@@ -178,5 +178,5 @@ void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
 #endif
 
 	//レンダリングされたイメージの表示
-	swapChain->Present(0, 0);
+	swapChain->Present(1, 0);
 }

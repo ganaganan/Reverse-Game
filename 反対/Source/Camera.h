@@ -1,10 +1,24 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include "framework.h"
 
 class Camera
 {
-public:
+private:
+	static constexpr float MOVE_SPEED = 3.0f;
+	enum State
+	{
+		Wait,
+		Shift_Left,
+		Shift_Right,
+	};
+	State	state;
+	State	lastState;
+	bool	isMove;
+	int		time;
+
+//public:
 	DirectX::XMFLOAT3	pos;		// ç¿ïW
 	DirectX::XMFLOAT3	target;		// íçéãì_
 	DirectX::XMMATRIX	projection;	// ìäâeçsóÒ
@@ -17,13 +31,20 @@ public:
 private:
 	Camera();
 	void		Watch();
+	void		Player();
+
+#ifdef USE_IMGUI
+	void UseImGui();
+#endif
+
 
 public:
-	DirectX::XMMATRIX	SetOrthographicMatrix(float _width, float _height, float _zNear, float _zFar);
-	DirectX::XMMATRIX	SetPerspectiveMatrix(float _fov, float _aspect, float _zNear, float _zFar);
+	DirectX::XMMATRIX	SetOrthographicMatrix( float _width, float _height, float _zNear, float _zFar );
+	DirectX::XMMATRIX	SetPerspectiveMatrix( float _fov, float _aspect, float _zNear, float _zFar );
 	DirectX::XMMATRIX	GetViewMatrix();
 	DirectX::XMMATRIX	GetProjectionMatrix() { return projection; }
 
+	DirectX::XMFLOAT3	GetPos() { return pos; }
 
 	static Camera& Get()
 	{
@@ -31,4 +52,3 @@ public:
 		return instance;
 	}
 };
-

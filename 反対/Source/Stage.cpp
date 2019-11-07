@@ -34,7 +34,7 @@ void Stage::Render(DirectX::XMMATRIX& _V, DirectX::XMMATRIX& _P)
 	WVP = W * _V * _P;
 
 	XMFLOAT4 color{ 1.0f,1.0f,1.0f,1.0f };
-	XMFLOAT4 light(1.0f, -1.0f, 0.0f, 0.0f);
+	XMFLOAT4 light(1.0f, -1.0f, 1.0f, 0.0f);
 
 	stageModel->Render(FRAMEWORK->GetDeviceContext(),
 		Float4x4(WVP), 

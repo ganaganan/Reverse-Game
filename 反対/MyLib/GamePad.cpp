@@ -99,8 +99,8 @@ void ChackInputState()
 {
 	for (int s = 0; s < TRG_NUM_MAX; s++)
 	{
-		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbLX, controllers[s].state.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-//		controllers[s].state.Gamepad.wButtons |= ThumbToDPad(controllers[s].state.Gamepad.sThumbRX, controllers[s].state.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+		controllers[s].state.Gamepad.wButtons |= ThumbToDPadLeft(controllers[s].state.Gamepad.sThumbLX, controllers[s].state.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+//		controllers[s].state.Gamepad.wButtons |= ThumbToDPadRight(controllers[s].state.Gamepad.sThumbRX, controllers[s].state.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 
 		for (int i = 0; i < BUTTONS::DPAD_END; i++)
 		{
@@ -215,7 +215,7 @@ bool	InputState(int _input, int _padNum)
 }
 
 
-WORD ThumbToDPad(SHORT sThumbX, SHORT sThumbY, SHORT sDeadZone)
+WORD ThumbToDPadLeft(SHORT sThumbX, SHORT sThumbY, SHORT sDeadZone)
 {
 	WORD wButtons = 0;
 

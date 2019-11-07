@@ -13,6 +13,9 @@ Camera::Camera()
 	float fov = DirectX::XMConvertToRadians(30.0f);
 	float aspect = static_cast<float>(framework::SCREEN_WIDTH) / static_cast<float>(framework::SCREEN_HEIGHT);
 	SetPerspectiveMatrix(fov, aspect, 0.1f, 1000.0f);
+
+	state = State::Wait;
+	isMove = false;
 }
 
 /*------------------------------------*/
@@ -49,7 +52,9 @@ DirectX::XMMATRIX	Camera::GetViewMatrix()
 
 void Camera::Update()
 {
-	Watch();
+//	Watch();
+	Player();
+//	UseImGui();
 }
 
 void Camera::Watch()
@@ -84,4 +89,87 @@ void Camera::Watch()
 	target = pos;
 
 	target.z += 1.0f;
+}
+
+void Camera::Player()
+{
+	if (InputState(XINPUT_DPAD_RIGHT) && state != State::Shift_Left)
+	{
+		lastState = state;
+		state = State::Shift_Right;
+		isMove = true;
+	}
+	else if (InputState(XINPUT_DPAD_LEFT) && state != State::Shift_Right)
+	{
+		lastState = state;
+		state = State::Shift_Left;
+		isMove = true;
+	}
+	else if(state != State::Wait)
+	{
+		lastState = state;
+		state = State::Wait;
+	}
+
+	if (!isMove)return;
+
+	switch (state)
+	{
+	case Camera::Wait:
+		if (lastState == State::Shift_Left)
+		{
+			pos.x += MOVE_SPEED;
+			if (pos.x >= 0.0f)
+			{
+				pos.x = 0.0f;
+				isMove = false;
+			}
+		}
+		else if (lastState == State::Shift_Right)
+		{
+			pos.x -= MOVE_SPEED;
+			if (pos.x <= 0.0f)
+			{
+				pos.x = 0.0f;
+				isMove = false;
+			}
+		}
+
+		break;
+	case Camera::Shift_Left:
+		pos.x -= MOVE_SPEED;
+		if (pos.x <= -40.0f)
+		{
+			pos.x = -40.0f;
+		}
+		break;
+	case Camera::Shift_Right:
+		pos.x += MOVE_SPEED;
+		if (pos.x >= 40.0f)
+		{
+			pos.x = 40.0f;
+		}
+		break;
+	default:
+		break;
+	}
+
+//	pos.z = -37.0f;
+	pos.z = -30.0f;
+	pos.y = 15.0f;
+	target = pos;
+
+	target.z += 1.0f;
+
+}
+
+void Camera::UseImGui()
+{
+	ImGui::Begin("Ç¥Ç–ÇÂÅ[");
+
+	ImGui::SliderFloat("pos.x", &pos.x, -200.0f, 200.0f);
+	ImGui::SliderFloat("pos.y", &pos.y, -200.0f, 200.0f);
+	ImGui::SliderFloat("pos.z", &pos.z, -200.0f, 200.0f);
+
+	ImGui::End();
 }

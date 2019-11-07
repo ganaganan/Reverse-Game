@@ -19,15 +19,6 @@ class SkinnedMesh
 		DirectX::XMFLOAT4X4	worldViewProjection;
 		DirectX::XMFLOAT4X4 world;
 		DirectX::XMFLOAT4	materialColor;
-		DirectX::XMFLOAT4	lightDirection;
-
-		DirectX::XMFLOAT4 lightPosRight;
-		DirectX::XMFLOAT4 lightColorRight;
-		DirectX::XMFLOAT4 lightPosLeft;
-		DirectX::XMFLOAT4 lightColorLeft;
-
-		DirectX::XMFLOAT4 attenuation;
-
 	};
 	struct material
 	{
@@ -90,7 +81,13 @@ public:
 	SkinnedMesh(ID3D11Device* _device, const char* _fbx_filename);
 	virtual ~SkinnedMesh();
 
-	void Render(ID3D11DeviceContext* _context, const DirectX::XMFLOAT4X4 &_WVP, const DirectX::XMFLOAT4X4 &_world, const DirectX::XMFLOAT4 &_lightDirection, DirectX::XMFLOAT4 &_materialColor, bool wireframe = false);
+	void Render(
+		ID3D11DeviceContext* _context, 
+		const DirectX::XMFLOAT4X4 &_WVP, 
+		const DirectX::XMFLOAT4X4 &_world, 
+		const DirectX::XMFLOAT4 &_lightDirection,
+		DirectX::XMFLOAT4 &_materialColor, 
+		bool wireframe = false);
 	void LoadTextureFile(const char*, ID3D11ShaderResourceView**);
 private:
 //	void CreateBuffer(ID3D11Device* _device, vertex*_verices, int _numVertices, u_int* _indices, int _numIndices);

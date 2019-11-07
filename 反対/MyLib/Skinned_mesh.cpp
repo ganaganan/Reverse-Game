@@ -167,72 +167,6 @@ SkinnedMesh::SkinnedMesh(ID3D11Device* _device, const char* _fbx_filename)
 		indices.resize(number_of_polygons * 3);
 		FbxStringList uv_names;
 		fbx_mesh->GetUVSetNames(uv_names);
-//		if (uv_names.GetCount() != 0)
-//		{
-//			for (int index_of_polygon = 0; index_of_polygon < number_of_polygons; index_of_polygon++)
-//			{
-//				// UNIT.18   // The material for current face.   
-//				int index_of_material = 0;
-//				if (number_of_materials > 0)
-//				{
-//					index_of_material = fbx_mesh->GetElementMaterial()->GetIndexArray().GetAt(index_of_polygon);
-//				}
-//				// Where should I save the vertex attribute index, according to the material  
-//				subset& subset = mesh.subsets.at(index_of_material);
-//				const int index_offset = subset.index_start + subset.index_count;
-//
-//				for (int index_of_vertex = 0; index_of_vertex < 3; index_of_vertex++)
-//				{
-//					vertex vertex;
-//					const int index_of_control_point = fbx_mesh->GetPolygonVertex(index_of_polygon, index_of_vertex);
-//					vertex.position.x = static_cast<float>(array_of_control_points[index_of_control_point][0]);
-//					vertex.position.y = static_cast<float>(array_of_control_points[index_of_control_point][1]);
-//					vertex.position.z = static_cast<float>(array_of_control_points[index_of_control_point][2]);
-//
-//					FbxVector4 normal;
-//					fbx_mesh->GetPolygonVertexNormal(index_of_polygon, index_of_vertex, normal);
-//					vertex.normal.x = static_cast<float>(normal[0]);
-//					vertex.normal.y = static_cast<float>(normal[1]);
-//					vertex.normal.z = static_cast<float>(normal[2]);
-//
-//					FbxVector2 uv;
-//					bool unmapped_uv;
-//					fbx_mesh->GetPolygonVertexUV(index_of_polygon, index_of_vertex, uv_names[0], uv, unmapped_uv);
-//					vertex.tex.x = static_cast<float>(uv[0]);
-//					vertex.tex.y = 1.0f - static_cast<float>(uv[1]);
-//
-//					vertices.push_back(vertex);
-////					indices.push_back(vertex_count);
-//					indices.at(index_offset + index_of_vertex) = static_cast<u_int>(vertex_count);
-//					vertex_count += 1;
-//				}
-//				subset.index_count += 3;
-//			}
-//		}
-//		else
-//		{
-//			for (int index_of_polygon = 0; index_of_polygon < number_of_polygons; index_of_polygon++)
-//			{
-//				for (int index_of_vertex = 0; index_of_vertex < 3; index_of_vertex++)
-//				{
-//					vertex vertex;
-//					const int index_of_control_point = fbx_mesh->GetPolygonVertex(index_of_polygon, index_of_vertex);
-//					vertex.position.x = static_cast<float>(array_of_control_points[index_of_control_point][0]);
-//					vertex.position.y = static_cast<float>(array_of_control_points[index_of_control_point][1]);
-//					vertex.position.z = static_cast<float>(array_of_control_points[index_of_control_point][2]);
-//
-//					FbxVector4 normal;
-//					fbx_mesh->GetPolygonVertexNormal(index_of_polygon, index_of_vertex, normal);
-//					vertex.normal.x = static_cast<float>(normal[0]);
-//					vertex.normal.y = static_cast<float>(normal[1]);
-//					vertex.normal.z = static_cast<float>(normal[2]);
-//
-//					vertices.push_back(vertex);
-//					indices.push_back(vertex_count);
-//					vertex_count++;
-//				}
-//			}
-//		}
 		for (int index_of_polygon = 0; index_of_polygon < number_of_polygons; index_of_polygon++)
 		{
 			// UNIT.18
@@ -439,95 +373,6 @@ void	SkinnedMesh::mesh::CreateBuffer(ID3D11Device *device, vertex *vertices, int
 	}
 }
 
-#if 0
-void	SkinnedMesh::Render(ID3D11DeviceContext* _context, const DirectX::XMFLOAT4X4 &_WVP, const DirectX::XMFLOAT4X4 &_world, const DirectX::XMFLOAT4 &_lightDirection, DirectX::XMFLOAT4 &_materialColor, bool wireframe)
-{
-	//サブセット単位で描画できるようにしようず
-	for (size_t i = 0; i < meshes.size(); i++)
-	{
-		mesh& mesh = meshes.at(i);
-		if (mesh.subsets.size() != 0)
-		{
-			for (auto& subset : mesh.subsets)
-			{
-				cbuffer data;
-				//data.worldViewProjection = _WVP;
-				//data.world = _world;
-				DirectX::XMStoreFloat4x4(&data.worldViewProjection, DirectX::XMLoadFloat4x4(&mesh.globalTransform) * DirectX::XMLoadFloat4x4(&_WVP));	// WVP * globalTransform
-				DirectX::XMStoreFloat4x4(&data.world, DirectX::XMLoadFloat4x4(&mesh.globalTransform) * DirectX::XMLoadFloat4x4(&_world));				// world * globalTransform
-				data.lightDirection = _lightDirection;
-				data.materialColor.x = _materialColor.x * subset.diffuse.color.x;
-				data.materialColor.y = _materialColor.y * subset.diffuse.color.y;
-				data.materialColor.z = _materialColor.z * subset.diffuse.color.z;
-				_context->UpdateSubresource(constantBuffer, 0, 0, &data, 0, 0);
-				_context->VSSetConstantBuffers(0, 1, &constantBuffer);
-				_context->PSSetShaderResources(0, 1, &subset.diffuse.shaderResourceView);
-
-				_context->PSSetSamplers(0, 1, &samplerState);
-
-				u_int stride = sizeof(vertex);
-				u_int offset = 0;
-				_context->IASetVertexBuffers(0, 1, &mesh.vertexBuffer, &stride, &offset);
-				_context->IASetIndexBuffer(mesh.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-				_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				_context->IASetInputLayout(inputLayout);
-
-				_context->VSSetShader(vertexShader, nullptr, 0);
-				_context->PSSetShader(pixelShader, nullptr, 0);
-
-				_context->OMSetDepthStencilState(depthStencilState, 1);
-				if (wireframe)
-				{
-					_context->RSSetState(rasterizerState[1]);
-				}
-				else
-				{
-					_context->RSSetState(rasterizerState[0]);
-				}
-
-				_context->DrawIndexed(subset.index_count, subset.index_start, 0);
-			}
-		}
-		else
-		{
-			cbuffer data;
-			data.worldViewProjection = _WVP;
-			data.world = _world;
-			data.lightDirection = _lightDirection;
-			data.materialColor = _materialColor;
-			_context->UpdateSubresource(constantBuffer, 0, 0, &data, 0, 0);
-			_context->VSSetConstantBuffers(0, 1, &constantBuffer);
-
-			u_int stride = sizeof(vertex);
-			u_int offset = 0;
-			_context->IASetVertexBuffers(0, 1, &mesh.vertexBuffer, &stride, &offset);
-			_context->IASetIndexBuffer(mesh.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-			_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			_context->IASetInputLayout(inputLayout);
-
-			//		_context->PSSetShaderResources(0, 1, &diffuse.shaderResourceView);
-			_context->PSSetSamplers(0, 1, &samplerState);
-
-			_context->VSSetShader(vertexShader, nullptr, 0);
-			_context->PSSetShader(pixelShader, nullptr, 0);
-
-			_context->OMSetDepthStencilState(depthStencilState, 1);
-			if (wireframe)
-			{
-				_context->RSSetState(rasterizerState[1]);
-			}
-			else
-			{
-				_context->RSSetState(rasterizerState[0]);
-			}
-
-			D3D11_BUFFER_DESC buffer_desc;
-			mesh.indexBuffer->GetDesc(&buffer_desc);
-			_context->DrawIndexed(buffer_desc.ByteWidth / sizeof(u_int), 0, 0);
-		}
-	}
-}
-#else
 void	SkinnedMesh::Render(ID3D11DeviceContext* _context, const DirectX::XMFLOAT4X4& _WVP, const DirectX::XMFLOAT4X4& _world, const DirectX::XMFLOAT4& _lightDirection, DirectX::XMFLOAT4& _materialColor, bool wireframe)
 {
 	for (mesh& mesh : meshes)
@@ -558,12 +403,6 @@ void	SkinnedMesh::Render(ID3D11DeviceContext* _context, const DirectX::XMFLOAT4X
 		DirectX::XMStoreFloat4x4(&data.worldViewProjection, DirectX::XMLoadFloat4x4(&mesh.globalTransform) * DirectX::XMLoadFloat4x4(&_WVP));
 		DirectX::XMStoreFloat4x4(&data.world, DirectX::XMLoadFloat4x4(&mesh.globalTransform) * DirectX::XMLoadFloat4x4(&_world));
 
-		data.lightDirection = _lightDirection;
-
-		data.lightPosRight = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-		data.lightColorRight = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		data.attenuation = DirectX::XMFLOAT4(1.0f, 0.0f, 0.2f, 1.0f);
-
 		for (subset& subset : mesh.subsets)
 		{
 			data.materialColor.x = subset.diffuse.color.x * _materialColor.x;
@@ -572,7 +411,7 @@ void	SkinnedMesh::Render(ID3D11DeviceContext* _context, const DirectX::XMFLOAT4X
 			data.materialColor.w = _materialColor.w;
 			_context->UpdateSubresource(constantBuffer, 0, 0, &data, 0, 0);
 			_context->VSSetConstantBuffers(0, 1, &constantBuffer);
-//			_context->PSSetConstantBuffers(0, 1, &constantBuffer);
+			_context->PSSetConstantBuffers(0, 1, &constantBuffer);
 
 			_context->PSSetShaderResources(0, 1, &subset.diffuse.shaderResourceView);
 			_context->PSSetSamplers(0, 1, &samplerState);
@@ -580,7 +419,6 @@ void	SkinnedMesh::Render(ID3D11DeviceContext* _context, const DirectX::XMFLOAT4X
 		}
 	}
 }
-#endif
 
 void SkinnedMesh::LoadTextureFile(const char* _fileName, ID3D11ShaderResourceView** _shaderResourceView)
 {
