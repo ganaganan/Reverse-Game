@@ -7,14 +7,23 @@ class Camera
 {
 private:
 	static constexpr float MOVE_SPEED = 3.0f;
-	enum State
+	enum MoveState
 	{
 		Wait,
 		Shift_Left,
 		Shift_Right,
 	};
-	State	state;
-	State	lastState;
+	MoveState	state;
+	MoveState	lastState;
+
+	enum CameraState
+	{
+		PlayerCamera,
+		WatchCamera,
+		ImGuiCamera,
+	};
+	CameraState	cameraState;
+
 	bool	isMove;
 	int		time;
 
@@ -36,6 +45,10 @@ private:
 #ifdef USE_IMGUI
 	void UseImGui();
 #endif
+
+	void MoveRight();
+	void MoveLeft();
+	void MoveWait();
 
 
 public:

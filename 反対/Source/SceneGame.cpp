@@ -58,21 +58,8 @@ void SceneGame::Render()
 	V =	Camera::Get().GetViewMatrix();
 	P =	Camera::Get().GetProjectionMatrix();
 
-	// 定数バッファ設定
-	LightConstantBuffer cb;
-	cb.ambientColor = Light::ambient;
-	cb.lightDir = Light::lightDir;
-	cb.lightColor = Light::dirLightColor;
-	cb.eyePos.x = Camera::Get().GetPos().x;
-	cb.eyePos.y = Camera::Get().GetPos().y;
-	cb.eyePos.z = Camera::Get().GetPos().z;
-	cb.eyePos.w = 1.0f;
-	memcpy(cb.pointLight, Light::pointLight, sizeof(PointLight) * Light::POINT_MAX);
-
-	FRAMEWORK->GetDeviceContext()->UpdateSubresource(constantBuffer, 0, NULL, &cb, 0, 0);
-	FRAMEWORK->GetDeviceContext()->VSSetConstantBuffers(2, 1, &constantBuffer);
-	FRAMEWORK->GetDeviceContext()->PSSetConstantBuffers(2, 1, &constantBuffer);
-
+	// 定数バッファの設定
+	SetConstantBuffer();
 
 	Stage::Get().Render(V, P);
 }

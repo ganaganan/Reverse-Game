@@ -6,6 +6,7 @@
 #include <framework.h>
 
 #include "Scene.h"
+#include "Camera.h"
 #include "Light.h"
 
 class SceneGame : public BaseScene
@@ -51,6 +52,24 @@ protected:
 		assert(SUCCEEDED(hr));
 
 		return true;
+	}
+
+	void SetConstantBuffer()
+	{
+		// 定数バッファ設定
+		LightConstantBuffer cb;
+		cb.ambientColor = Light::ambient;
+		cb.lightDir = Light::lightDir;
+		cb.lightColor = Light::dirLightColor;
+		cb.eyePos.x = Camera::Get().GetPos().x;
+		cb.eyePos.y = Camera::Get().GetPos().y;
+		cb.eyePos.z = Camera::Get().GetPos().z;
+		cb.eyePos.w = 1.0f;
+		memcpy(cb.pointLight, Light::pointLight, sizeof(PointLight) * Light::POINT_MAX);
+
+		FRAMEWORK->GetDeviceContext()->UpdateSubresource(constantBuffer, 0, NULL, &cb, 0, 0);
+		FRAMEWORK->GetDeviceContext()->VSSetConstantBuffers(2, 1, &constantBuffer);
+		FRAMEWORK->GetDeviceContext()->PSSetConstantBuffers(2, 1, &constantBuffer);
 	}
 };
 
