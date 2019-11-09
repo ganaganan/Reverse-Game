@@ -5,9 +5,11 @@
 
 Camera::Camera()
 {
-	pos = DirectX::XMFLOAT3(0.0f, 15.0f, -30.0f);
+	pos = DirectX::XMFLOAT3(0.0f, 23.0f, -30.0f);
 	target = DirectX::XMFLOAT3(pos.x, pos.y, pos.z + 1.0f);
+	upVector = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
 	angle = 0.0f;
+	time = 0;
 
 	float fov = DirectX::XMConvertToRadians(30.0f);
 	float aspect = static_cast<float>(framework::SCREEN_WIDTH) / static_cast<float>(framework::SCREEN_HEIGHT);
@@ -46,7 +48,7 @@ DirectX::XMMATRIX	Camera::GetViewMatrix()
 {
 	DirectX::XMVECTOR	p = DirectX::XMVectorSet(pos.x, pos.y, pos.z, 1.0f);
 	DirectX::XMVECTOR	t = DirectX::XMVectorSet(target.x, target.y, target.z, 1.0f);
-	DirectX::XMVECTOR	up = DirectX::XMVectorSet(0.0f/*0.3f*/, 1.0f, 0.0f, 0.0f);
+	DirectX::XMVECTOR	up = DirectX::XMVectorSet(upVector.x, upVector.y, upVector.z, 0.0f);
 
 	return DirectX::XMMatrixLookAtLH(p, t, up);
 }
@@ -60,10 +62,12 @@ void Camera::Update()
 	{
 	case CameraState::PlayerCamera:
 		Player();
+		UseImGui();
 		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::WatchCamera;
 		break;
 	case CameraState::WatchCamera:
-		Watch();
+		Watch(); 
+		UseImGui();
 		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::ImGuiCamera;
 		break;
 	case CameraState::ImGuiCamera:
@@ -117,22 +121,31 @@ void Camera::Watch()
 /*------------------------------------*/
 void Camera::Player()
 {
-	if (InputState(XINPUT_DPAD_RIGHT) && state != MoveState::Shift_Left)
+	if (InputState(XINPUT_DPAD_RIGHT))
 	{
-		lastState = state;
-		state = MoveState::Shift_Right;
-		isMove = true;
+		if (!isMove)
+		{
+			lastState = state;
+			state = MoveState::Shift_Right;
+			isMove = true;
+		}
 	}
-	else if (InputState(XINPUT_DPAD_LEFT) && state != MoveState::Shift_Right)
+	else if (InputState(XINPUT_DPAD_LEFT))
 	{
-		lastState = state;
-		state = MoveState::Shift_Left;
-		isMove = true;
+		if (!isMove)
+		{
+			lastState = state;
+			state = MoveState::Shift_Left;
+			isMove = true;
+		}
 	}
 	else if(state != MoveState::Wait)
 	{
-		lastState = state;
-		state = MoveState::Wait;
+		if (state != MoveState::Wait)
+		{
+			lastState = state;
+			state = MoveState::Wait;
+		}
 	}
 
 	if (!isMove)return;
@@ -140,47 +153,21 @@ void Camera::Player()
 	switch (state)
 	{
 	case Camera::Wait:
-		if (lastState == MoveState::Shift_Left)
-		{
-			pos.x += MOVE_SPEED;
-			if (pos.x >= 0.0f)
-			{
-				pos.x = 0.0f;
-				isMove = false;
-			}
-		}
-		else if (lastState == MoveState::Shift_Right)
-		{
-			pos.x -= MOVE_SPEED;
-			if (pos.x <= 0.0f)
-			{
-				pos.x = 0.0f;
-				isMove = false;
-			}
-		}
-
+		MoveWait();
 		break;
 	case Camera::Shift_Left:
-		pos.x -= MOVE_SPEED;
-		if (pos.x <= -40.0f)
-		{
-			pos.x = -40.0f;
-		}
+		MoveLeft();
 		break;
 	case Camera::Shift_Right:
-		pos.x += MOVE_SPEED;
-		if (pos.x >= 40.0f)
-		{
-			pos.x = 40.0f;
-		}
+		MoveRight();
 		break;
 	default:
 		break;
 	}
 
 //	pos.z = -37.0f;
-	pos.z = -30.0f;
-	pos.y = 15.0f;
+//	pos.z = -30.0f;
+//	pos.y = 15.0f;
 	target = pos;
 
 	target.z += 1.0f;
@@ -204,13 +191,178 @@ void Camera::UseImGui()
 /*------------------------------------*/
 //	右に倒している時の動き
 /*------------------------------------*/
+// (18, 15, 27)
+void Camera::MoveRight()
+{
+	Gana::Vector3 dirVec;
+	DirectX::XMFLOAT3 targetPos;
+	switch (walkState)
+	{
+	case Camera::Walking:
+		// 移動ベクトル
+		targetPos = DirectX::XMFLOAT3(18.0f, 23.0f, 27.0f);
+		dirVec.x = targetPos.x - pos.x;
+		dirVec.y = targetPos.y - pos.y;
+		dirVec.z = targetPos.z - pos.z;
+		dirVec.Normalize();
 
+		pos.x = pos.x + dirVec.x * MOVE_SPEED;
+		pos.y = pos.y + dirVec.y * MOVE_SPEED;
+		pos.z = pos.z + dirVec.z * MOVE_SPEED;
+
+		if (pos.x >= 18.0f)
+		{
+			walkState = Peeking;
+			time = 0;
+		}
+		break;
+	case Camera::Peeking:
+		if (time++ < 30)
+		{
+			upVector.x = 0.5f * time / 30;
+			pos.x += 0.1f;
+		}
+		if (time >= 30)time = 30;
+
+		break;
+	default:
+		break;
+	}
+}
 
 /*------------------------------------*/
 //	左に倒している時の動き
 /*------------------------------------*/
+// (-18, 15, 27)
+void Camera::MoveLeft()
+{
+	Gana::Vector3 dirVec;
+	DirectX::XMFLOAT3 targetPos;
+	switch (walkState)
+	{
+	case Camera::Walking:
+		// 移動ベクトル
+		targetPos = DirectX::XMFLOAT3(-18.0f, 23.0f, 27.0f);
+		dirVec.x = targetPos.x - pos.x;
+		dirVec.y = targetPos.y - pos.y;
+		dirVec.z = targetPos.z - pos.z;
+		dirVec.Normalize();
 
+		pos.x = pos.x + dirVec.x * MOVE_SPEED;
+		pos.y = pos.y + dirVec.y * MOVE_SPEED;
+		pos.z = pos.z + dirVec.z * MOVE_SPEED;
+
+		if (pos.x <= -18.0f)
+		{
+			walkState = Peeking;
+			time = 0;
+		}
+		break;
+	case Camera::Peeking:
+		if (time++ < 30)
+		{
+			upVector.x = -0.5f * time / 30;
+			pos.x -= 0.1f;
+		}
+		if (time >= 30)time = 30;
+
+		break;
+	default:
+		break;
+	}
+
+}
 
 /*------------------------------------*/
 //	倒していない時の動き
 /*------------------------------------*/
+void Camera::MoveWait()
+{
+	if (lastState == MoveState::Shift_Left)
+	{
+		Gana::Vector3 dirVec;
+		DirectX::XMFLOAT3 targetPos;
+
+		switch (walkState)
+		{
+		case Camera::Peeking:
+			if (time-- <= 30)
+			{
+				upVector.x = -0.5f * time / 30;
+				pos.x += 0.1f;
+			}
+
+			if (time == 0)
+			{
+				walkState = Camera::Walking;
+			}
+
+			break;
+		case Camera::Walking:
+			// 移動ベクトル
+			targetPos = DirectX::XMFLOAT3(0.0f, 23.0f, -30.0f);
+			dirVec.x = targetPos.x - pos.x;
+			dirVec.y = targetPos.y - pos.y;
+			dirVec.z = targetPos.z - pos.z;
+			dirVec.Normalize();
+
+			pos.x = pos.x + dirVec.x * MOVE_SPEED;
+			pos.y = pos.y + dirVec.y * MOVE_SPEED;
+			pos.z = pos.z + dirVec.z * MOVE_SPEED;
+
+			if (pos.x >= 0.0f)
+			{
+				isMove = false;
+				pos = targetPos;
+			}
+
+			break;
+		default:
+			break;
+		}
+	}
+	else if (lastState == MoveState::Shift_Right)
+	{
+		Gana::Vector3 dirVec;
+		DirectX::XMFLOAT3 targetPos;
+
+		switch (walkState)
+		{
+		case Camera::Peeking:
+			if (time-- <= 30)
+			{
+				upVector.x = 0.5f * time / 30;
+				pos.x -= 0.1f;
+			}
+
+			if (time == 0)
+			{
+				walkState = Camera::Walking;
+			}
+
+			break;
+		case Camera::Walking:
+			// 移動ベクトル
+			targetPos = DirectX::XMFLOAT3(0.0f, 23.0f, -30.0f);
+			dirVec.x = targetPos.x - pos.x;
+			dirVec.y = targetPos.y - pos.y;
+			dirVec.z = targetPos.z - pos.z;
+			dirVec.Normalize();
+
+			pos.x = pos.x + dirVec.x * MOVE_SPEED;
+			pos.y = pos.y + dirVec.y * MOVE_SPEED;
+			pos.z = pos.z + dirVec.z * MOVE_SPEED;
+
+			if (pos.x <= 0.0f)
+			{
+				isMove = false;
+				pos = targetPos;
+			}
+
+			break;
+		default:
+			break;
+		}
+	}
+
+}

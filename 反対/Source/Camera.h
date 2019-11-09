@@ -1,28 +1,36 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <Vector.h>
+
 #include "framework.h"
 
 class Camera
 {
 private:
-	static constexpr float MOVE_SPEED = 3.0f;
+	static constexpr float MOVE_SPEED = 2.0f;
 	enum MoveState
 	{
 		Wait,
 		Shift_Left,
 		Shift_Right,
 	};
-	MoveState	state;
-	MoveState	lastState;
-
 	enum CameraState
 	{
 		PlayerCamera,
 		WatchCamera,
 		ImGuiCamera,
 	};
+	enum WalkState
+	{
+		Walking,
+		Peeking,
+	};
+
+	MoveState	state;
+	MoveState	lastState;
 	CameraState	cameraState;
+	WalkState	walkState;
 
 	bool	isMove;
 	int		time;
@@ -30,6 +38,7 @@ private:
 //public:
 	DirectX::XMFLOAT3	pos;		// 座標
 	DirectX::XMFLOAT3	target;		// 注視点
+	DirectX::XMFLOAT3	upVector;	// 上方向ベクトル
 	DirectX::XMMATRIX	projection;	// 投影行列
 	float				angle;		// カメラの角度
 
