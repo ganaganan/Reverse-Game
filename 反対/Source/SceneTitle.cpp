@@ -15,6 +15,7 @@ void SceneTitle::Update()
 	{
 		SceneManager::Get().SetScene(SceneManager::Get().MAIN_GAME);
 	}
+
 }
 
 void SceneTitle::Render()

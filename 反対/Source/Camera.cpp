@@ -1,6 +1,7 @@
 #include	"Camera.h"
 #include	<framework.h>
 #include	"../MyLib/GamePad.h"
+#include	"Light.h"
 
 
 Camera::Camera()
@@ -19,6 +20,7 @@ Camera::Camera()
 	state = MoveState::Wait;
 	lastState = MoveState::Wait;
 	isMove = false;
+	canPushSwitch = false;
 }
 
 /*------------------------------------*/
@@ -148,6 +150,21 @@ void Camera::Player()
 		}
 	}
 
+	if (InputTrigger(XINPUT_B) && canPushSwitch)
+	{
+		switch (state)
+		{
+		case Camera::Shift_Left:
+			Light::SwitchPointLight(0);
+			break;
+		case Camera::Shift_Right:
+			Light::SwitchPointLight(1);
+			break;
+		default:
+			break;
+		}
+	}
+
 	if (!isMove)return;
 
 	switch (state)
@@ -222,7 +239,11 @@ void Camera::MoveRight()
 			upVector.x = 0.5f * time / 30;
 			pos.x += 0.1f;
 		}
-		if (time >= 30)time = 30;
+		if (time >= 30)
+		{
+			time = 30;
+			canPushSwitch = true;
+		}
 
 		break;
 	default:
@@ -264,7 +285,11 @@ void Camera::MoveLeft()
 			upVector.x = -0.5f * time / 30;
 			pos.x -= 0.1f;
 		}
-		if (time >= 30)time = 30;
+		if (time >= 30)
+		{
+			time = 30;
+			canPushSwitch = true;
+		}
 
 		break;
 	default:
@@ -288,6 +313,7 @@ void Camera::MoveWait()
 		case Camera::Peeking:
 			if (time-- <= 30)
 			{
+				canPushSwitch = false;
 				upVector.x = -0.5f * time / 30;
 				pos.x += 0.1f;
 			}
@@ -331,6 +357,7 @@ void Camera::MoveWait()
 		case Camera::Peeking:
 			if (time-- <= 30)
 			{
+				canPushSwitch = false;
 				upVector.x = 0.5f * time / 30;
 				pos.x -= 0.1f;
 			}

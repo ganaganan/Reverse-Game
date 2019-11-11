@@ -24,8 +24,8 @@ class SceneGame : public BaseScene
 public:
 	/*----------------------------------------*/
 	// Degub variable and function
-	DirectX::XMFLOAT3	debugLightPos[3];
-	float				debugLightRange[3];
+	DirectX::XMFLOAT3	debugLightPos[Light::POINT_MAX];
+	float				debugLightRange[Light::POINT_MAX];
 	void UseImGui();
 	/*----------------------------------------*/
 

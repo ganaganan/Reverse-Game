@@ -33,6 +33,7 @@ private:
 	WalkState	walkState;
 
 	bool	isMove;
+	bool	canPushSwitch;
 	int		time;
 
 //public:
