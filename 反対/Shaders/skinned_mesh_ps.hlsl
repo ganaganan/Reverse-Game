@@ -62,7 +62,8 @@ float4 main(VS_OUT_POINT pin) : SV_TARGET
 		{
 			// 点灯していないライト除外
 			if (pointLight[i].type == 0)continue;
-			PL = pin.posw.xyz - pointLight[i].pos.xyz;
+//			PL = pin.posw.xyz - pointLight[i].pos.xyz;  ベクトルの方向が逆！
+			PL = pointLight[i].pos.xyz - pin.posw.xyz;
 			float d = length(PL);
 
 			float r = pointLight[i].range;

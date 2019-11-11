@@ -21,6 +21,7 @@ Camera::Camera()
 	lastState = MoveState::Wait;
 	isMove = false;
 	canPushSwitch = false;
+
 }
 
 /*------------------------------------*/
@@ -69,10 +70,6 @@ void Camera::Update()
 		break;
 	case CameraState::WatchCamera:
 		Watch(); 
-		UseImGui();
-		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::ImGuiCamera;
-		break;
-	case CameraState::ImGuiCamera:
 		UseImGui();
 		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::PlayerCamera;
 		break;

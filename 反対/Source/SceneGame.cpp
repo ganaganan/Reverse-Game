@@ -12,16 +12,16 @@
 void SceneGame::Init()
 {
 	// デバッグ用
-	debugLightPos[0] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
-	debugLightPos[1] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
-	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 47.0f, 100.0f);
+	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 75.0f);
+	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 75.0f);
+	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
 	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
 	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
 
 
-	debugLightRange[0] = 173.5f;
-	debugLightRange[1] = 173.5f;
-	debugLightRange[2] = 120.0f;
+	debugLightRange[0] = 100.0f;
+	debugLightRange[1] = 100.0f;
+	debugLightRange[2] = 160.0f;
 	debugLightRange[3] = 0.0f;
 	debugLightRange[4] = 0.0f;
 
@@ -55,6 +55,7 @@ void SceneGame::Update()
 	UseImGui();
 #endif
 	// ポイントライトの設定
+	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
 //	Light::SetPointLight(3, debugLightPos[3]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[3]);	// 左中
 //	Light::SetPointLight(4, debugLightPos[4]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[4]);	// 右中
 

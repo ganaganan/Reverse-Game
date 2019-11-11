@@ -39,6 +39,13 @@ INT WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line
 
 	framework f(hwnd);
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&f));
+	SetMenu(hwnd, NULL);	//メニューを隠す
+	SetWindowLong(hwnd, GWL_STYLE, WS_VISIBLE | WS_POPUP);//ウィンドウのスタイルを変更
+	MoveWindow(hwnd, GetSystemMetrics(SM_XVIRTUALSCREEN),
+		GetSystemMetrics(SM_YVIRTUALSCREEN),
+		GetSystemMetrics(SM_CXVIRTUALSCREEN),
+		GetSystemMetrics(SM_CYVIRTUALSCREEN), TRUE);
+
 	f.run();
 	return true;
 }

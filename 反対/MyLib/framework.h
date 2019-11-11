@@ -38,8 +38,8 @@ class framework
 
 public:
     CONST HWND hwnd = NULL;
-	static CONST LONG SCREEN_WIDTH = 1280;
-	static CONST LONG SCREEN_HEIGHT = 720;
+	static CONST LONG SCREEN_WIDTH = 1920;
+	static CONST LONG SCREEN_HEIGHT = 1080;
     /*-------------------------------------------------------------------*/
     /*TODO4 : frameworkクラスのメンバ変数として以下のCOMオブジェクトを宣言する*/
     /*-------------------------------------------------------------------*/

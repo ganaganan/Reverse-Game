@@ -9,17 +9,10 @@ class Camera
 {
 private:
 	static constexpr float MOVE_SPEED = 2.0f;
-	enum MoveState
-	{
-		Wait,
-		Shift_Left,
-		Shift_Right,
-	};
 	enum CameraState
 	{
 		PlayerCamera,
 		WatchCamera,
-		ImGuiCamera,
 	};
 	enum WalkState
 	{
@@ -27,6 +20,15 @@ private:
 		Peeking,
 	};
 
+public:
+	enum MoveState
+	{
+		Wait,
+		Shift_Left,
+		Shift_Right,
+	};
+
+private:
 	MoveState	state;
 	MoveState	lastState;
 	CameraState	cameraState;
@@ -67,7 +69,10 @@ public:
 	DirectX::XMMATRIX	GetViewMatrix();
 	DirectX::XMMATRIX	GetProjectionMatrix() { return projection; }
 
+	// getter and setter
 	DirectX::XMFLOAT3	GetPos() { return pos; }
+	bool				GetCanPushSwitch() { return canPushSwitch; }
+	MoveState			GetMoveState() { return state; }
 
 	static Camera& Get()
 	{
