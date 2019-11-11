@@ -1,7 +1,9 @@
+#pragma comment(lib, "OpenAL32.lib")
 #include <windows.h>
 #include <memory>
 #include <assert.h>
 #include <tchar.h>
+#include "Audio.h"
 
 #include "framework.h"
 
@@ -17,6 +19,14 @@ INT WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 //	_CrtSetBreakAlloc(72827);//72827
 #endif
+
+		// OpenALÇÃèâä˙âª
+	ALCdevice* al_device;
+	ALCcontext* al_context = nullptr;
+	al_device = alcOpenDevice(nullptr);
+	al_context = alcCreateContext(al_device, nullptr);
+	alcMakeContextCurrent(al_context);
+
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -47,5 +57,11 @@ INT WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line
 		GetSystemMetrics(SM_CYVIRTUALSCREEN), TRUE);
 
 	f.run();
+
+	// OpenALÇîjä¸
+	alcMakeContextCurrent(nullptr);
+	alcDestroyContext(al_context);
+	alcCloseDevice(al_device);
+
 	return true;
 }
