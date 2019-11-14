@@ -14,6 +14,9 @@
 #include"static_mesh.h"
 #include"Skinned_mesh.h"
 #include"Polygon.h"
+//#include"../Source/Scene.h"
+
+//#include "../Source/Scene.h"
 
 #define USE_PTR 0
 
@@ -121,48 +124,52 @@ public:
 		mesh = nullptr;
 
 	}
-	int run()
-	{
-		MSG msg = {};
-
-		if (!initialize()) return 0;
-#ifdef USE_IMGUI
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-
-		ImGui_ImplWin32_Init(hwnd);
-		ImGui_ImplDX11_Init(device, deviceContext);
-		//ImGui::StyleColorsClassic();
-		//ImGui::StyleColorsLight();
-		ImGui::StyleColorsDark();
-
-		ImGuiIO& io = ImGui::GetIO();
-		//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-		io.Fonts->AddFontFromFileTTF("ImGui\\consolab.ttf", 10.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-		//io.Fonts->AddFontFromFileTTF(".\\Inconsolata-Bold.ttf", 12.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-#endif
-		while (WM_QUIT != msg.message)
-		{
-			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-			else
-			{
-				timer.tick();
-				calculate_frame_stats();
-				update(timer.time_interval());
-				render(timer.time_interval());
-			}
-		}
-#ifdef USE_IMGUI
-		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
-#endif
-		return static_cast<int>(msg.wParam);
-	}
+	int run();
+//	int run()
+//	{
+//		MSG msg = {};
+//
+//		if (!initialize()) return 0;
+//#ifdef USE_IMGUI
+//		IMGUI_CHECKVERSION();
+//		ImGui::CreateContext();
+//
+//		ImGui_ImplWin32_Init(hwnd);
+//		ImGui_ImplDX11_Init(device, deviceContext);
+//		//ImGui::StyleColorsClassic();
+//		//ImGui::StyleColorsLight();
+//		ImGui::StyleColorsDark();
+//
+//		ImGuiIO& io = ImGui::GetIO();
+//		//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+//		io.Fonts->AddFontFromFileTTF("ImGui\\consolab.ttf", 10.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+//		//io.Fonts->AddFontFromFileTTF(".\\Inconsolata-Bold.ttf", 12.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+//#endif
+//		while (WM_QUIT != msg.message)
+//		{
+//			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+//			{
+//				TranslateMessage(&msg);
+//				DispatchMessage(&msg);
+//			}
+//			else
+//			{
+//				timer.tick();
+//				calculate_frame_stats();
+//				update(timer.time_interval());
+//				render(timer.time_interval());
+//			}
+//		}
+//
+////		SceneManager::Get().nowScene->Uninit();
+////		SceneManager::Get().Uninit();
+//#ifdef USE_IMGUI
+//		ImGui_ImplDX11_Shutdown();
+//		ImGui_ImplWin32_Shutdown();
+//		ImGui::DestroyContext();
+//#endif
+//		return static_cast<int>(msg.wParam);
+//	}
 
 	LRESULT CALLBACK handle_message(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{

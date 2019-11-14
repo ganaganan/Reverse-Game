@@ -6,7 +6,9 @@ class BaseScene
 {
 protected:
 	DirectX::XMFLOAT3 lightDir;
-
+	static int nowDay;
+public:
+	static int lastEnemyType;
 public:
 	virtual void Init() = 0;
 	virtual void Uninit() = 0;

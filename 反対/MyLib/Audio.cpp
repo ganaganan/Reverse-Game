@@ -1,5 +1,7 @@
 #include	"Audio.h"
 
+XMFLOAT3 Audio::listenerPos = { 0.0f,0.0f,0.0f };
+
 Audio::Audio()
 {
 
@@ -26,7 +28,7 @@ bool Audio::Open(const char* path)
 {
 	errno_t no = fopen_s(&fp, path, "rb");
 
-	if (no)	return false;
+	assert(no == 0 && "ÇªÇÃwav fileÇŸÇÒÇ‹Ç…Ç†ÇÈÅH");//	return false;
 
 	fileSize = GetFileSize(fp);
 	parseHeader();
@@ -110,10 +112,12 @@ bool Audio::parseWaveChunk(WaveChunk* chunk, unsigned int tag)
 
 void Audio::Initialize()
 {
+	assert(format.wBitsPerSample == 16 && "wave file 16bitÇ…ÇµÇƒÅ`Å`");
+
 	// Read wavefile	----------------------------------------
 	unsigned long memory = 0, length = 0;
 	// a sample length
-	memory = format.wBitsPerSample / 8;
+	memory = format.wBitsPerSample / 16;
 	// How much to read
 	length = dataSize / memory;
 
@@ -184,7 +188,7 @@ void Audio::Initialize()
 
 
 	// Transfer waveform data to buffer and connect to source---
-	alBufferData(buffer_id, ms_fomat, &buffer[0], length * sizeof(signed short), format.nSamplesPerSec);
+	alBufferData(buffer_id, ms_fomat, &buffer[0], length, format.nSamplesPerSec);
 
 	// Set audio buffer on source object
 	alSourcei(source_id, AL_BUFFER, buffer_id);
@@ -195,6 +199,10 @@ void Audio::Initialize()
 
 	float volume = 1.0f;
 	alSourcef(source_id, AL_GAIN, volume);
+
+	// release
+	delete buffer;
+	buffer = nullptr;
 }
 
 

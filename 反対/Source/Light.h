@@ -14,20 +14,34 @@ struct PointLight {
 
 class Light
 {
+public:
+	enum ConsumptionAmount
+	{
+		Small,
+		Midium,
+		Big,
+	};
+	static int amountState;
 private:
 	static DirectX::XMFLOAT3 pos;
 
 public:
 	static const int POINT_MAX = 32;
-
+	static int		CONSUMPTION_SMALL;
+	static int		CONSUMPTION_MIDIUM;
+	static int		CONSUMPTION_BIG;
 
 	static DirectX::XMFLOAT4		lightDir;
 	static DirectX::XMFLOAT4		dirLightColor;
 	static DirectX::XMFLOAT4		ambient;
 	static PointLight	pointLight[POINT_MAX];
+	static bool			isEnableBattery;
+
+	static long int battery;
 
 public:
 	static void Init();
+	static void Update();
 	static void SetDirLight(DirectX::XMFLOAT3 _dir, DirectX::XMFLOAT3 _color);
 
 	static void SetAmbient(DirectX::XMFLOAT3 _amb);

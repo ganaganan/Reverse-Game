@@ -4,6 +4,8 @@
 void Stage::Init()
 {
 	stageModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Stage));
+	rightDoorModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::RightDoor));
+	leftDoorModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::LeftDoor));
 }
 
 void Stage::Update()
@@ -42,6 +44,19 @@ void Stage::Render(DirectX::XMMATRIX& _V, DirectX::XMMATRIX& _P)
 		light, 
 		color
 	);
+	rightDoorModel->Render(FRAMEWORK->GetDeviceContext(),
+		Float4x4(WVP),
+		Float4x4(W),
+		light,
+		color
+	);
+	leftDoorModel->Render(FRAMEWORK->GetDeviceContext(),
+		Float4x4(WVP),
+		Float4x4(W),
+		light,
+		color
+	);
+
 }
 
 void Stage::Uninit()

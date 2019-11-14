@@ -1,16 +1,27 @@
 #include "Scene.h"
 
 #include <Audio.h>
+
+#include "SceneOver.h"
 //#include <Audio.cpp>
+
+int BaseScene::lastEnemyType;
+int BaseScene::nowDay;
 
 SceneTitle sceneTitle;
 SceneGame sceneGame;
+SceneGame2 sceneGame2;
+SceneGame3 sceneGame3;
 SceneClear sceneClear;
+SceneOver  sceneOver;
 
 BaseScene* scene_tbl[] = {
 	&sceneTitle,
 	&sceneGame,
+	&sceneGame2,
+	&sceneGame3,
 	&sceneClear,
+	&sceneOver,
 };
 
 

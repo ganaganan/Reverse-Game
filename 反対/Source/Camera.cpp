@@ -65,12 +65,16 @@ void Camera::Update()
 	{
 	case CameraState::PlayerCamera:
 		Player();
+#ifdef USE_IMGUI
 		UseImGui();
+#endif
 		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::WatchCamera;
 		break;
 	case CameraState::WatchCamera:
 		Watch(); 
+#ifdef USE_IMGUI
 		UseImGui();
+#endif
 		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::PlayerCamera;
 		break;
 	default:
@@ -147,7 +151,7 @@ void Camera::Player()
 		}
 	}
 
-	if (InputTrigger(XINPUT_B) && canPushSwitch)
+	if (InputTrigger(XINPUT_B) && canPushSwitch && Light::isEnableBattery)
 	{
 		switch (state)
 		{
@@ -191,16 +195,21 @@ void Camera::Player()
 /*------------------------------------*/
 //	ImGuiを使って値を動かすカメラ
 /*------------------------------------*/
+#ifdef USE_IMGUI
 void Camera::UseImGui()
 {
-	ImGui::Begin("ざひょー");
+	ImGui::Begin(" Camera ");
 
 	ImGui::SliderFloat("pos.x", &pos.x, -200.0f, 200.0f);
 	ImGui::SliderFloat("pos.y", &pos.y, -200.0f, 200.0f);
 	ImGui::SliderFloat("pos.z", &pos.z, -200.0f, 200.0f);
+	ImGui::NewLine();
+	ImGui::SliderFloat(" MOVE_SPEED(Frame)", &MOVE_SPEED, 0.1f, 5.0f);
+	ImGui::InputInt(" PEEKING_COUNT(Frame)", &PEEKING_COUNT);
 
 	ImGui::End();
 }
+#endif
 
 /*------------------------------------*/
 //	右に倒している時の動き
@@ -231,14 +240,14 @@ void Camera::MoveRight()
 		}
 		break;
 	case Camera::Peeking:
-		if (time++ < 30)
+		if (time++ < PEEKING_COUNT)
 		{
-			upVector.x = 0.5f * time / 30;
-			pos.x += 0.1f;
+			upVector.x = 0.5f * time / PEEKING_COUNT;
+			pos.x += 0.1 * 30 / PEEKING_COUNT;
 		}
-		if (time >= 30)
+		if (time >= PEEKING_COUNT)
 		{
-			time = 30;
+			time = PEEKING_COUNT;
 			canPushSwitch = true;
 		}
 
@@ -277,14 +286,14 @@ void Camera::MoveLeft()
 		}
 		break;
 	case Camera::Peeking:
-		if (time++ < 30)
+		if (time++ < PEEKING_COUNT)
 		{
-			upVector.x = -0.5f * time / 30;
-			pos.x -= 0.1f;
+			upVector.x = -0.5f * time / PEEKING_COUNT;
+			pos.x -= 0.1 * 30 / PEEKING_COUNT;
 		}
-		if (time >= 30)
+		if (time >= PEEKING_COUNT)
 		{
-			time = 30;
+			time = PEEKING_COUNT;
 			canPushSwitch = true;
 		}
 
@@ -308,11 +317,11 @@ void Camera::MoveWait()
 		switch (walkState)
 		{
 		case Camera::Peeking:
-			if (time-- <= 30)
+			if (time-- <= PEEKING_COUNT)
 			{
 				canPushSwitch = false;
-				upVector.x = -0.5f * time / 30;
-				pos.x += 0.1f;
+				upVector.x = -0.5f * time / PEEKING_COUNT;
+				pos.x += 0.1 * 30 / PEEKING_COUNT;
 			}
 
 			if (time == 0)
@@ -352,11 +361,11 @@ void Camera::MoveWait()
 		switch (walkState)
 		{
 		case Camera::Peeking:
-			if (time-- <= 30)
+			if (time-- <= PEEKING_COUNT)
 			{
 				canPushSwitch = false;
-				upVector.x = 0.5f * time / 30;
-				pos.x -= 0.1f;
+				upVector.x = 0.5f * time / PEEKING_COUNT;
+				pos.x -= 0.1 * 30 / PEEKING_COUNT;
 			}
 
 			if (time == 0)

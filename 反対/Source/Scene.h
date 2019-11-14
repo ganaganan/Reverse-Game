@@ -7,6 +7,7 @@
 
 class SceneManager
 {
+public:
 	BaseScene* nowScene;
 	BaseScene* nextScene;
 
@@ -15,6 +16,8 @@ public:
 	{
 		TITLE,
 		MAIN_GAME,
+		MAIN_GAME2,
+		MAIN_GAME3,
 		GAME_CLEAR,
 		GAME_OVER,
 	};

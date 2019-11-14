@@ -2,9 +2,15 @@
 
 #include <framework.h>
 
+#include "Scene.h"
 #include "FilePath.h"
 #include "Light.h"
 #include "Camera.h"
+
+int Enemy::ENEMY1_WAIT_COUNT;
+int Enemy::ENEMY2_WAIT_COUNT;
+int Enemy::ENEMY3_WAIT_COUNT;
+int Enemy::ERASE_COUNT;
 
 /*------------------------------------*/
 //	各ポイントの位置情報
@@ -28,13 +34,25 @@ DirectX::XMFLOAT3 pointPosition[] = {
 /*------------------------------------*/
 void EnemyManager::Init()
 {
-//	totemPoleModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::TotemPole));
+	totemPoleModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::TotemPole));
 	ghostModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Ghost));
+	darumaModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Daruma));
 
 	for (auto& it : enemy)
 	{
 		it.Init();
 	}
+
+	Enemy::ENEMY1_WAIT_COUNT = 300;
+	Enemy::ENEMY2_WAIT_COUNT = 200;
+	Enemy::ENEMY3_WAIT_COUNT = 300;
+	Enemy::ERASE_COUNT = 60;
+
+	// Set Sound
+	sound[SoundType::MoveDaruma] = new Audio("Data/Sound/だるま.wav");
+	sound[SoundType::MoveGhost] = new Audio("Data/Sound/幽霊飛んでる音.wav");
+	sound[SoundType::MovePole] = new Audio("Data/Sound/重い金属引きずる音.wav");
+	for (auto& it : soundVol)it = 1;
 }
 
 /*------------------------------------*/
@@ -48,13 +66,25 @@ void EnemyManager::Update()
 	}
 #ifdef USE_IMGUI
 	ImGui::Begin("enemy pos");
-	ImGui::SliderFloat("x", &enemy[0].pos.x, -100.0f, 100.0f);
-	ImGui::SliderFloat("y", &enemy[0].pos.y, -100.0f, 100.0f);
-	ImGui::SliderFloat("z", &enemy[0].pos.z, -100.0f, 500.0f);
+	if (ImGui::TreeNode("Move Speed"))
+	{
+		ImGui::InputInt(" Daruma ",		&Enemy::ENEMY1_WAIT_COUNT);
+		ImGui::InputInt(" Ghost ",		&Enemy::ENEMY2_WAIT_COUNT);
+		ImGui::InputInt(" Totempole ",	&Enemy::ENEMY3_WAIT_COUNT);
+
+		ImGui::TreePop();
+	}
 	ImGui::NewLine();
-	ImGui::SliderFloat("x", &enemy[1].pos.x, -100.0f, 100.0f);
-	ImGui::SliderFloat("y", &enemy[1].pos.y, -100.0f, 100.0f);
-	ImGui::SliderFloat("z", &enemy[1].pos.z, -100.0f, 500.0f);
+
+	ImGui::InputInt(" ERASE_COUNT ", &Enemy::ERASE_COUNT);
+
+	if (ImGui::TreeNode("Sound Volume"))
+	{
+		ImGui::SliderFloat(" Daruma Move Vol ", &soundVol[SoundType::MoveDaruma], 0.0f, 1.0f);
+		ImGui::SliderFloat(" Ghost Move Vol ", &soundVol[SoundType::MoveGhost], 0.0f, 1.0f);
+		ImGui::SliderFloat(" Pole Move Vol ", &soundVol[SoundType::MoveGhost], 0.0f, 1.0f);
+		ImGui::TreePop();
+	}
 
 	ImGui::End();
 #endif
@@ -80,13 +110,19 @@ void EnemyManager::Uninit()
 	{
 		it.Uninit();
 	}
+
+	for (auto& it : sound)
+	{
+		delete it;
+		it = nullptr;
+	}
+
 }
 
 /*------------------------------------*/
 //	敵の生成
 /*------------------------------------*/
 void EnemyManager::GenerateEnemy(
-	DirectX::XMFLOAT3 _scale,
 	Enemy::EnemyType _type, Enemy::Point _generatePoint)
 {
 	for (auto& it : enemy)
@@ -94,7 +130,6 @@ void EnemyManager::GenerateEnemy(
 		if (it.GetEnable())continue;
 
 		it.Generate(
-			_scale,
 			_type, _generatePoint
 		);
 		break;
@@ -112,9 +147,11 @@ void Enemy::Init()
 	type = EnemyType::TotemPole;
 	nowPoint = Point::R_Point1;
 	moveTime = 0;
+	eraseCount = 0;
 	isEnable = false;
 	isPreparationErase = false;
 	isHitLight = false;
+
 }
 
 /*------------------------------------*/
@@ -180,6 +217,15 @@ void Enemy::Render(DirectX::XMMATRIX& _V, DirectX::XMMATRIX& _P)
 			color
 		);
 		break;
+	case Enemy::EnemyType::Daruma:
+		EnemyManager::Get().darumaModel->Render(
+			FRAMEWORK->GetDeviceContext(),
+			Float4x4(WVP),
+			Float4x4(W),
+			light,
+			color
+		);
+		break;
 	default:
 		break;
 	}
@@ -200,9 +246,48 @@ void Enemy::Move()
 {
 	moveTime++;
 
-	if (moveTime >= ENEMY_WAIT_COUNT)
+	switch (type)
 	{
-		if (nowPoint>= Point::R_Point1 && Point::R_Point5>=nowPoint)
+	case Enemy::EnemyType::TotemPole:
+		MoveEnemy3();
+		break;
+	case Enemy::EnemyType::Ghost:
+		MoveEnemy2();
+		break;
+	case Enemy::EnemyType::Daruma:
+		MoveEnemy1();
+		break;
+	default:
+		break;
+	}
+}
+
+void Enemy::MoveEnemy1()
+{
+	if (moveTime >= ENEMY1_WAIT_COUNT)
+	{
+		if (nowPoint >= Point::R_Point1 && Point::R_Point5 >= nowPoint)
+		{
+			MoveRightPoint();
+		}
+		else
+		{
+			MoveLeftPoint();
+
+		}
+		pos = pointPosition[nowPoint];
+		pos.y = 0.0f;
+		moveTime = 0;
+		EnemyManager::Get().sound[EnemyManager::SoundType::MoveDaruma]->SetPosition(pos);
+		EnemyManager::Get().sound[EnemyManager::SoundType::MoveDaruma]->Play(false);
+	}
+}
+
+void Enemy::MoveEnemy2()
+{
+	if (moveTime >= ENEMY2_WAIT_COUNT)
+	{
+		if (nowPoint >= Point::R_Point1 && Point::R_Point5 >= nowPoint)
 		{
 			MoveRightPoint();
 		}
@@ -213,19 +298,54 @@ void Enemy::Move()
 		}
 		pos = pointPosition[nowPoint];
 		moveTime = 0;
+		EnemyManager::Get().sound[EnemyManager::SoundType::MoveGhost]->SetPosition(pos);
+		EnemyManager::Get().sound[EnemyManager::SoundType::MoveGhost]->Play(false);
 	}
 }
+
+void Enemy::MoveEnemy3()
+{
+	if (moveTime >= ENEMY3_WAIT_COUNT)
+	{
+		if (rand() % 3 == 0)
+		{
+			// まっすぐ
+			if (nowPoint >= Point::R_Point1 && Point::R_Point5 >= nowPoint)
+			{
+				MoveRightPoint();
+			}
+			else
+			{
+				MoveLeftPoint();
+
+			}
+		}
+		else
+		{
+			// 左右
+			MoveCross();
+		}
+		pos = pointPosition[nowPoint];
+		pos.y = 0.0f;
+		moveTime = 0;
+		EnemyManager::Get().sound[EnemyManager::SoundType::MovePole]->SetPosition(pos);
+		EnemyManager::Get().sound[EnemyManager::SoundType::MovePole]->Play(false);
+
+	}
+}
+
 
 /*------------------------------------*/
 //	Enemyの生成
 /*------------------------------------*/
 void Enemy::Generate(
-	DirectX::XMFLOAT3 _scale,
 	EnemyType _type, Point _generatePoint)
 {
 	pos = pointPosition[_generatePoint];
-	scale = _scale;
+	if (_type == EnemyType::Daruma) pos.y = 0.0f;
 	type = _type;
+	if (type == EnemyType::Ghost)	scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+	else							scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
 	nowPoint = _generatePoint;
 	isEnable = true;
 	isPreparationErase = false;
@@ -235,8 +355,10 @@ void Enemy::Generate(
 /*------------------------------------*/
 //	ライトに当たっているかを返す
 /*------------------------------------*/
-bool Enemy::JudgeIsHitLight()
+void Enemy::JudgeIsHitLight()
 {
+	if (!isEnable) return;
+
 	switch (nowPoint)
 	{
 	case Point::R_Point1:
@@ -247,8 +369,10 @@ bool Enemy::JudgeIsHitLight()
 			if (!isPreparationErase)
 			{
 				isPreparationErase = true;
-				EraseThisInstance();
+				eraseCount = 0;
+
 			}
+			EraseThisInstance();
 		}
 		break;
 	case Point::L_Point1:
@@ -259,15 +383,15 @@ bool Enemy::JudgeIsHitLight()
 			if (!isPreparationErase)
 			{
 				isPreparationErase = true;
-				EraseThisInstance();
+				eraseCount = 0;
 			}
+			EraseThisInstance();
 		}
 		break;
 
 	default:
 		break;
 	}
-	return true;
 }
 
 /*------------------------------------*/
@@ -292,7 +416,23 @@ void Enemy::MoveRightPoint()
 		nowPoint = Point::R_Point1;
 		break;
 	case Point::R_Point1:
-		nowPoint = Point::R_Point4;
+//		nowPoint = Point::R_Point4;
+		switch (type)
+		{
+		case Enemy::EnemyType::TotemPole:
+			BaseScene::lastEnemyType = 2;
+			break;
+		case Enemy::EnemyType::Ghost:
+			BaseScene::lastEnemyType = 1;
+			break;
+		case Enemy::EnemyType::Daruma:
+			BaseScene::lastEnemyType = 0;
+			break;
+		default:
+			break;
+		}
+		SceneManager::Get().SetScene(SceneManager::GAME_OVER);
+		
 		break;
 	}
 }
@@ -319,10 +459,96 @@ void Enemy::MoveLeftPoint()
 		nowPoint = Point::L_Point1;
 		break;
 	case Point::L_Point1:
-		nowPoint = Point::L_Point4;
+//		nowPoint = Point::L_Point4;
+		switch (type)
+		{
+		case Enemy::EnemyType::TotemPole:
+			BaseScene::lastEnemyType = 2;
+			break;
+		case Enemy::EnemyType::Ghost:
+			BaseScene::lastEnemyType = 1;
+			break;
+		case Enemy::EnemyType::Daruma:
+			BaseScene::lastEnemyType = 0;
+			break;
+		default:
+			break;
+		}
+		SceneManager::Get().SetScene(SceneManager::GAME_OVER);
 		break;
 	}
 
+}
+
+void Enemy::MoveCross()
+{
+	if (Camera::Get().GetCanPushSwitch() && Camera::Get().GetMoveState() == Camera::MoveState::Shift_Left)return;
+
+	switch (nowPoint)
+	{
+	case Enemy::R_Point1:
+		switch (type)
+		{
+		case Enemy::EnemyType::TotemPole:
+			BaseScene::lastEnemyType = 2;
+			break;
+		case Enemy::EnemyType::Ghost:
+			BaseScene::lastEnemyType = 1;
+			break;
+		case Enemy::EnemyType::Daruma:
+			BaseScene::lastEnemyType = 0;
+			break;
+		default:
+			break;
+		}
+		SceneManager::Get().SetScene(SceneManager::GAME_OVER);
+
+		break;
+	case Enemy::R_Point2:
+		nowPoint = Enemy::L_Point1;
+		break;
+	case Enemy::R_Point3:
+		nowPoint = Enemy::L_Point2;
+		break;
+	case Enemy::R_Point4:
+		nowPoint = Enemy::L_Point3;
+		break;
+	case Enemy::R_Point5:
+		nowPoint = Enemy::L_Point4;
+		break;
+	case Enemy::L_Point1:
+		switch (type)
+		{
+		case Enemy::EnemyType::TotemPole:
+			BaseScene::lastEnemyType = 2;
+			break;
+		case Enemy::EnemyType::Ghost:
+			BaseScene::lastEnemyType = 1;
+			break;
+		case Enemy::EnemyType::Daruma:
+			BaseScene::lastEnemyType = 0;
+			break;
+		default:
+			break;
+		}
+		SceneManager::Get().SetScene(SceneManager::GAME_OVER);
+
+		break;
+	case Enemy::L_Point2:
+		nowPoint = Enemy::R_Point1;
+		break;
+	case Enemy::L_Point3:
+		nowPoint = Enemy::R_Point2;
+		break;
+	case Enemy::L_Point4:
+		nowPoint = Enemy::R_Point3;
+		break;
+	case Enemy::L_Point5:
+		nowPoint = Enemy::R_Point4;
+		break;
+	default:
+		break;
+	}
 }
 
 /*------------------------------------*/
@@ -330,7 +556,7 @@ void Enemy::MoveLeftPoint()
 /*------------------------------------*/
 void Enemy::ErasePreparation()
 {
-
+	isEnable = false;
 }
 
 /*------------------------------------*/
@@ -338,5 +564,17 @@ void Enemy::ErasePreparation()
 /*------------------------------------*/
 void Enemy::EraseThisInstance()
 {
+	if (++eraseCount >= ERASE_COUNT)
+	{
+		ErasePreparation();
+	}
 
+	if (eraseCount % 4 >= 2)
+	{
+		pos.x += 0.5f;
+	}
+	else
+	{
+		pos.x -= 0.5f;
+	}
 }

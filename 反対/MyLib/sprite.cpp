@@ -67,10 +67,10 @@ Sprite::Sprite(ID3D11Device* orgDevice, const wchar_t* texture)
 
 	//⑤バーテックスシェーダオブジェクトの生成
 	//sprite_vsをロードする
-	create_vs_from_cso(orgDevice, "sprite_vs.cso", &vertexShader, &inputLayout, input_element_desc, ARRAYSIZE(input_element_desc));
+	create_vs_from_cso(orgDevice, "Data/Shaders/sprite_vs.cso", &vertexShader, &inputLayout, input_element_desc, ARRAYSIZE(input_element_desc));
 	//⑤ピクセルシェーダオブジェクトの生成
 	//sprite_psをロード
-	create_ps_from_cso(orgDevice, "sprite_ps.cso", &pixelShader);
+	create_ps_from_cso(orgDevice, "Data/Shaders/sprite_ps.cso", &pixelShader);
 	//ロード終了
 
 	//⑥ラスタライザーステートの設定

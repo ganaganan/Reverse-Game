@@ -8,7 +8,8 @@
 class Camera
 {
 private:
-	static constexpr float MOVE_SPEED = 2.0f;
+	float	MOVE_SPEED = 3.0f;
+	int		PEEKING_COUNT = 30.0f;
 	enum CameraState
 	{
 		PlayerCamera,
@@ -54,9 +55,7 @@ private:
 	void		Watch();
 	void		Player();
 
-#ifdef USE_IMGUI
 	void UseImGui();
-#endif
 
 	void MoveRight();
 	void MoveLeft();

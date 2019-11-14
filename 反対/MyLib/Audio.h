@@ -43,6 +43,10 @@ class Audio
 	static XMFLOAT3 listenerPos;
 
 public:
+	static constexpr float	SIDE_MAX = 120;
+	static constexpr float	FRONT_MAX = 1000;
+
+public:
 	Audio();
 	Audio(const char* path);
 	virtual ~Audio();
@@ -58,10 +62,26 @@ private:
 	bool	parseWaveChunk(WaveChunk* chunk, unsigned int tag);
 
 public:
+//	void playing()
+//	{
+//		ALint source_state;
+//		alGetSourcei(source_id, AL_SOURCE_STATE, &source_state);
+//		switch (source_state)
+//		{
+//		case AL_INITIAL:
+//		case AL_PLAYING:
+//			break;
+//		case AL_PAUSED:
+//		case AL_STOPPED:
+//			Play(false);
+//		}
+//	}
+//	aroundStageSound[SoundType::Rain]->playing();
+
 	// 再生
 	void	Play(const bool _isLoop)
 	{
-		alSourcei(source_id, AL_PLAYING, _isLoop);
+		alSourcei(source_id, AL_LOOPING, _isLoop ? AL_TRUE : AL_FALSE);
 		alSourcePlay(source_id);
 	}
 	// 一時停止
@@ -74,12 +94,33 @@ public:
 	{
 		alSourceStop(source_id);
 	}
-	// 音源の座標セット
+	// 
+	void	Rewind()
+	{
+		alSourceRewind(source_id);
+	}
+	// 音源の座標セット		//改変したよ☆
 	void	SetPosition(const XMFLOAT3 _pos)
 	{
+		float DIST_MAX = sqrtf(SIDE_MAX * SIDE_MAX + FRONT_MAX * FRONT_MAX);
+		ALfloat pos[] = {
+			_pos.x - listenerPos.x,		// x
+			0.0f,						// y
+			_pos.z - listenerPos.z		// z
+		};
 
-		ALfloat pos[] = { _pos.x, 0.0f, _pos.z };
+		float distance = sqrtf(pos[0] * pos[0] + pos[2] * pos[2]);
+		float volume = 1 - (distance / DIST_MAX);
+
+		pos[0] = pos[0] / SIDE_MAX;
+		pos[2] = pos[2] / FRONT_MAX;
+
+ 		SetVolume(volume);
 		alSourcefv(source_id, AL_POSITION, pos);
+	}
+	void	SetVolume(const float volume)
+	{
+		alSourcef(source_id, AL_GAIN, volume);
 	}
 
 	// listenerの座標セット
