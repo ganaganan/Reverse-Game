@@ -399,10 +399,10 @@ SpriteBatch::SpriteBatch(const wchar_t* _fileName, size_t _maxInstance, DirectX:
 	UINT numElements = ARRAYSIZE(layout);
 
 	//シェーダーのロード
-	hr = create_vs_from_cso(device, "sprite_batch_vs.cso", &vertexShader, &inputLayout, layout, ARRAYSIZE(layout));
-	assert(SUCCEEDED(hr) && "vertexShagerの読み込み中にこけました　by SpriteBatch");
-	hr = create_ps_from_cso(device, "sprite_batch_ps.cso", &pixelShader);
-	assert(SUCCEEDED(hr) && "pixelShaderの読み込み中にこけました　by SpriteBatch");
+	hr = create_vs_from_cso(device, "Data/Shaders/sprite_batch_vs.cso", &vertexShader, &inputLayout, layout, ARRAYSIZE(layout));
+	assert(SUCCEEDED(hr) && "Data/Shaders/vertexShagerの読み込み中にこけました　by SpriteBatch");
+	hr = create_ps_from_cso(device, "Data/Shaders/sprite_batch_ps.cso", &pixelShader);
+	assert(SUCCEEDED(hr) && "Data/Shaders/pixelShaderの読み込み中にこけました　by SpriteBatch");
 
 	instance* inst = new instance[MAX_INSTANCES];
 	{

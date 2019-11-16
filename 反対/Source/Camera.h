@@ -8,8 +8,8 @@
 class Camera
 {
 private:
-	float	MOVE_SPEED = 3.0f;
-	int		PEEKING_COUNT = 30.0f;
+	float	MOVE_SPEED = 4.0f;
+	int		PEEKING_COUNT = 18;
 	enum CameraState
 	{
 		PlayerCamera,
@@ -48,12 +48,13 @@ private:
 
 public:
 	~Camera(){}
-	void		Update();
+	void		Init();
+	void		Update(bool _isNotOperation = false);
 
 private:
 	Camera();
 	void		Watch();
-	void		Player();
+	void		Player(bool _isNotOperation = false);
 
 	void UseImGui();
 

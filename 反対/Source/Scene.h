@@ -4,6 +4,7 @@
 #include "SceneTitle.h"
 #include "SceneGame.h"
 #include "SceneClear.h"
+#include "SceneTutorial.h"
 
 class SceneManager
 {
@@ -15,6 +16,7 @@ public:
 	enum SCENE
 	{
 		TITLE,
+		TUTORIAL,
 		MAIN_GAME,
 		MAIN_GAME2,
 		MAIN_GAME3,

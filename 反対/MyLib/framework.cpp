@@ -193,6 +193,8 @@ void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
 	ImGui::Render();
 #endif
 
+	static Blender b(device);
+
 	//ビューポートの設定
 	D3D11_VIEWPORT vp;
 	vp.Width = SCREEN_WIDTH;
@@ -203,7 +205,7 @@ void framework::render(float elapsed_time/*Elapsed seconds from last frame*/)
 	vp.TopLeftY = 0;
 	deviceContext->RSSetViewports(1, &vp);
 
-#if 0
+#if 1
 	FLOAT clearColor[4] = { 0.0f,0.0f,0.0f,0.0f };
 #else
 	FLOAT clearColor[4] = { 0.3f,0.3f,0.3f,0.3f };

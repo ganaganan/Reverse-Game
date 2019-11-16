@@ -2,9 +2,15 @@
 #include	<framework.h>
 #include	"../MyLib/GamePad.h"
 #include	"Light.h"
+#include	"Stage.h"
 
 
 Camera::Camera()
+{
+	Init();
+}
+
+void Camera::Init()
 {
 	pos = DirectX::XMFLOAT3(0.0f, 23.0f, -30.0f);
 	target = DirectX::XMFLOAT3(pos.x, pos.y, pos.z + 1.0f);
@@ -21,7 +27,6 @@ Camera::Camera()
 	lastState = MoveState::Wait;
 	isMove = false;
 	canPushSwitch = false;
-
 }
 
 /*------------------------------------*/
@@ -59,23 +64,23 @@ DirectX::XMMATRIX	Camera::GetViewMatrix()
 /*------------------------------------*/
 //	更新関数
 /*------------------------------------*/
-void Camera::Update()
+void Camera::Update(bool _isNotOperation)
 {
 	switch (cameraState)
 	{
 	case CameraState::PlayerCamera:
-		Player();
+		Player(_isNotOperation);
 #ifdef USE_IMGUI
 		UseImGui();
 #endif
-		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::WatchCamera;
+//		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::WatchCamera;
 		break;
 	case CameraState::WatchCamera:
 		Watch(); 
 #ifdef USE_IMGUI
 		UseImGui();
 #endif
-		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::PlayerCamera;
+//		if (InputTrigger(XINPUT_BACK)) cameraState = CameraState::PlayerCamera;
 		break;
 	default:
 		break;
@@ -122,9 +127,9 @@ void Camera::Watch()
 /*------------------------------------*/
 //	プレイヤーカメラ
 /*------------------------------------*/
-void Camera::Player()
+void Camera::Player(bool _isNotOperation)
 {
-	if (InputState(XINPUT_DPAD_RIGHT))
+	if (InputState(XINPUT_DPAD_RIGHT) && !_isNotOperation)
 	{
 		if (!isMove)
 		{
@@ -133,7 +138,7 @@ void Camera::Player()
 			isMove = true;
 		}
 	}
-	else if (InputState(XINPUT_DPAD_LEFT))
+	else if (InputState(XINPUT_DPAD_LEFT) && !_isNotOperation)
 	{
 		if (!isMove)
 		{
@@ -151,20 +156,20 @@ void Camera::Player()
 		}
 	}
 
-	if (InputTrigger(XINPUT_B) && canPushSwitch && Light::isEnableBattery)
-	{
-		switch (state)
-		{
-		case Camera::Shift_Left:
-			Light::SwitchPointLight(0);
-			break;
-		case Camera::Shift_Right:
-			Light::SwitchPointLight(1);
-			break;
-		default:
-			break;
-		}
-	}
+//	if (InputTrigger(XINPUT_B) && canPushSwitch && Light::isEnableBattery)
+//	{
+//		switch (state)
+//		{
+//		case Camera::Shift_Left:
+//			Light::SwitchPointLight(0);
+//			break;
+//		case Camera::Shift_Right:
+//			Light::SwitchPointLight(1);
+//			break;
+//		default:
+//			break;
+//		}
+//	}
 
 	if (!isMove)return;
 
@@ -237,6 +242,7 @@ void Camera::MoveRight()
 		{
 			walkState = Peeking;
 			time = 0;
+			Light::TurnOnPointLight(1);
 		}
 		break;
 	case Camera::Peeking:
@@ -244,6 +250,8 @@ void Camera::MoveRight()
 		{
 			upVector.x = 0.5f * time / PEEKING_COUNT;
 			pos.x += 0.1 * 30 / PEEKING_COUNT;
+			// ドア傾ける
+			Stage::Get().rightDoorAngle += DirectX::XMConvertToRadians(1.0f) * 30 / PEEKING_COUNT;
 		}
 		if (time >= PEEKING_COUNT)
 		{
@@ -283,6 +291,7 @@ void Camera::MoveLeft()
 		{
 			walkState = Peeking;
 			time = 0;
+			Light::TurnOnPointLight(0);
 		}
 		break;
 	case Camera::Peeking:
@@ -290,6 +299,7 @@ void Camera::MoveLeft()
 		{
 			upVector.x = -0.5f * time / PEEKING_COUNT;
 			pos.x -= 0.1 * 30 / PEEKING_COUNT;
+			Stage::Get().leftDoorAngle -= DirectX::XMConvertToRadians(1.0f) * 30 / PEEKING_COUNT;
 		}
 		if (time >= PEEKING_COUNT)
 		{
@@ -322,11 +332,13 @@ void Camera::MoveWait()
 				canPushSwitch = false;
 				upVector.x = -0.5f * time / PEEKING_COUNT;
 				pos.x += 0.1 * 30 / PEEKING_COUNT;
+				Stage::Get().leftDoorAngle += DirectX::XMConvertToRadians(1.0f) * 30 / PEEKING_COUNT;
 			}
 
 			if (time == 0)
 			{
 				walkState = Camera::Walking;
+				Light::TurnOffPointLight(0);
 			}
 
 			break;
@@ -366,11 +378,13 @@ void Camera::MoveWait()
 				canPushSwitch = false;
 				upVector.x = 0.5f * time / PEEKING_COUNT;
 				pos.x -= 0.1 * 30 / PEEKING_COUNT;
+				Stage::Get().rightDoorAngle -= DirectX::XMConvertToRadians(1.0f) * 30 / PEEKING_COUNT;
 			}
 
 			if (time == 0)
 			{
 				walkState = Camera::Walking;
+				Light::TurnOffPointLight(1);
 			}
 
 			break;

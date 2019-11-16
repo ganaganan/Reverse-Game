@@ -14,7 +14,7 @@ private:
 //	static constexpr float	FRONT_MAX = 1000;
 	enum SoundType
 	{
-		Rain,		// ‰J
+//		Rain,		// ‰J
 		Thunder,	// —‹
 		Wind,		// •—
 		Chime,		// ƒ`ƒƒƒCƒ€
@@ -25,10 +25,11 @@ private:
 	};
 
 private:
+	Audio*	rainSound;
 	Audio*	aroundStageSound[SoundType::Max];
 	const float	playTime[SoundType::Max] =
 	{
-		60 * 11,	// ‰J
+//		60 * 11,	// ‰J
 		60 * 6,		// —‹
 		60 * 3,		// •—
 		60 * 16,	// ƒ`ƒƒƒCƒ€

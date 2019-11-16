@@ -64,4 +64,5 @@ public:
 	// setter and getter
 	static void SetPos(DirectX::XMFLOAT3 _pos) { pos = _pos; }
 	static DirectX::XMFLOAT3 GetPos() { return pos; }
+	static int GetBattery() { return battery; }
 };

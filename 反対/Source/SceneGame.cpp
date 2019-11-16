@@ -8,13 +8,16 @@
 #include "Enemy.h"
 #include "Light.h"
 #include "Sound.h"
+#include "../MyLib/GamePad.h"
+#include "UI.h"
 
 #pragma region Day1
+int SceneGame::nightTime;
 void SceneGame::Init()
 {
 	// エネミーの生成間隔
-	GENERATE_ENEMY_MIN = 300;
-	GENERATE_ENEMY_MAX = 500;
+	GENERATE_ENEMY_MIN = 1620;
+	GENERATE_ENEMY_MAX = 1800;
 	// 敵ごとの生成確率
 	GENERATE_PER_ENEMY1 = 70;
 	GENERATE_PER_ENEMY2 = 30;
@@ -27,16 +30,16 @@ void SceneGame::Init()
 	nowDay = 0;
 
 	// デバッグ用
-	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 75.0f);
-	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 75.0f);
+	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
+	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
 	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
 	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
 
 
-	debugLightRange[0] = 100.0f;
-	debugLightRange[1] = 100.0f;
-	debugLightRange[2] = 160.0f;
+	debugLightRange[0] = 95;
+	debugLightRange[1] = 95;
+	debugLightRange[2] = 100.0f;
 	debugLightRange[3] = 0.0f;
 	debugLightRange[4] = 0.0f;
 
@@ -47,6 +50,8 @@ void SceneGame::Init()
 	Stage::Get().Init();
 	EnemyManager::Get().Init();
 	Sound::Get().Init();
+	Camera::Get().Init();
+	UI::Get().Init();
 
 	// ライトの設定
 	Light::Init();
@@ -75,8 +80,8 @@ void SceneGame::Init()
 	sound[SoundType::Walk] = new Audio("Data/Sound/歩く音ブーツ.wav");
 	sound[SoundType::Thunder] = new Audio("Data/Sound/雷.wav");
 
-	PLAY_SOUND_MAX = 300;
-	PLAY_SOUND_MIN = 180;
+	PLAY_SOUND_MAX = 1200;
+	PLAY_SOUND_MIN = 900;
 	SOUND_VOLUME_MAX = 1.0f;
 	SOUND_VOLUME_MIN = 0.5f;
 	int tmp = PLAY_SOUND_MAX - PLAY_SOUND_MIN;
@@ -85,15 +90,28 @@ void SceneGame::Init()
 	SoundVol = rand() % tmp + SOUND_VOLUME_MIN;
 
 	for (auto& it : soundVol)it = 1.0f;
+
+	goDay2 = false;
+	canSeeString = false;
+	fadeTime = 0;
+	fadePosYUp = -framework::SCREEN_HEIGHT / 2 - 50.0f;
+	fadePosYDown = framework::SCREEN_HEIGHT;
+	count = 0;
 }
 
 void SceneGame::Update()
 {	
+//	if (InputTrigger(XINPUT_Y))
+//	{
+//		SceneManager::Get().SetScene(SceneManager::GAME_CLEAR);
+//	}
 #ifdef USE_IMGUI
 	UseImGui();
 #endif
 	// ポイントライトの設定
-	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
+//	Light::SetPointLight(0, debugLightPos[0]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[0]);	// 真ん中
+//	Light::SetPointLight(1, debugLightPos[1]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[1]);	// 真ん中
+//	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
 //	Light::SetPointLight(3, debugLightPos[3]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[3]);	// 左中
 //	Light::SetPointLight(4, debugLightPos[4]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[4]);	// 右中
 
@@ -102,12 +120,13 @@ void SceneGame::Update()
 	Stage::Get().Update();
 	EnemyManager::Get().Update();
 	Sound::Get().Update();
+	UI::Get().Update();
 
 	GenerateEnemy();
 
 	JudgeGoNextDay();
 
-	PlayEnvironment();
+//	PlayEnvironment();
 
 	nightTime++;
 }
@@ -126,6 +145,22 @@ void SceneGame::Render()
 
 	Stage::Get().Render(V, P);
 	EnemyManager::Get().Render(V, P);
+	UI::Get().Render();
+
+	SetDrawBlendMode(BLEND_MODE::ALPHA);
+	UI::Get().sprBlack->Begin();
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYUp), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2 ),
+		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2 ),
+		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	UI::Get().sprBlack->End();
+	if (canSeeString)
+	{
+		UI::Get().sprGameOver->Begin();
+		UI::Get().sprGameOver->Draw(700, 450, 475, 128, 512, 256, 475, 128, 0, 0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		UI::Get().sprGameOver->End();
+	}
+	SetDrawBlendMode(BLEND_MODE::NONE);
 }
 
 void SceneGame::Uninit()
@@ -135,6 +170,7 @@ void SceneGame::Uninit()
 		delete it;
 		it = nullptr;
 	}
+	UI::Get().Uninit();
 }
 
 #ifdef USE_IMGUI
@@ -259,9 +295,27 @@ void SceneGame::GenerateEnemy()
 
 void SceneGame::JudgeGoNextDay()
 {
+
 	if (nightTime >= TOTAL_NIGHTS)
 	{
-		SceneManager::Get().SetScene(SceneManager::MAIN_GAME2);
+		goDay2 = true;
+	}
+	if (goDay2)
+	{
+		fadeTime++;
+		if (fadeTime <= 30)
+		{
+			fadePosYUp += (framework::SCREEN_HEIGHT / 2 + 50.0f) * 1 / 30;
+			fadePosYDown -= (framework::SCREEN_HEIGHT / 2 + 50.0f) * 1 / 30;
+		}
+		else if (count++ < 60)
+		{
+			canSeeString = true;
+		}
+		else
+		{
+			SceneManager::Get().SetScene(SceneManager::MAIN_GAME2);
+		}
 	}
 }
 
@@ -380,15 +434,16 @@ void SceneGame::PlayEnvironment()
 
 
 #pragma region Day2
+int SceneGame2::nightTime;
 void SceneGame2::Init()
 {
 	// エネミーの生成間隔
-	GENERATE_ENEMY_MIN = 300;
-	GENERATE_ENEMY_MAX = 500;
+	GENERATE_ENEMY_MIN = 1320;
+	GENERATE_ENEMY_MAX = 1500;
 	// 敵ごとの生成確率
-	GENERATE_PER_ENEMY1 = 70;
-	GENERATE_PER_ENEMY2 = 30;
-	GENERATE_PER_ENEMY3 = 0;
+	GENERATE_PER_ENEMY1 = 40;
+	GENERATE_PER_ENEMY2 = 40;
+	GENERATE_PER_ENEMY3 = 20;
 	generateEnemyCount = 0;
 	thisTimeGeneratePerCount = 90;
 
@@ -406,7 +461,7 @@ void SceneGame2::Init()
 
 	debugLightRange[0] = 100.0f;
 	debugLightRange[1] = 100.0f;
-	debugLightRange[2] = 160.0f;
+	debugLightRange[2] = 100.0f;
 	debugLightRange[3] = 0.0f;
 	debugLightRange[4] = 0.0f;
 
@@ -417,6 +472,8 @@ void SceneGame2::Init()
 	Stage::Get().Init();
 	EnemyManager::Get().Init();
 	Sound::Get().Init();
+	Camera::Get().Init();
+	UI::Get().Init();
 
 	// ライトの設定
 	Light::Init();
@@ -443,8 +500,8 @@ void SceneGame2::Init()
 	sound[SoundType::Walk] = new Audio("Data/Sound/歩く音ブーツ.wav");
 	sound[SoundType::Thunder] = new Audio("Data/Sound/雷.wav");
 
-	PLAY_SOUND_MAX = 300;
-	PLAY_SOUND_MIN = 180;
+	PLAY_SOUND_MAX = 1200;
+	PLAY_SOUND_MIN = 900;
 	SOUND_VOLUME_MAX = 1.0f;
 	SOUND_VOLUME_MIN = 0.5f;
 	int tmp = PLAY_SOUND_MAX - PLAY_SOUND_MIN;
@@ -454,10 +511,33 @@ void SceneGame2::Init()
 
 	for (auto& it : soundVol)it = 1.0f;
 
+	canSeeString = false;
+	byDay1 = true;
+	goDay3 = false;
+	fadeTime = 0;
+	fadePosYUp = 0.0f;
+	fadePosYDown = framework::SCREEN_HEIGHT / 2;
+	count = 0;
+
 }
 
 void SceneGame2::Update()
 {
+	if (byDay1)
+	{
+		fadeTime++;
+		if (fadeTime <= 24)
+		{
+			fadePosYUp -= (framework::SCREEN_HEIGHT / 2) * 1 / 24;
+			fadePosYDown += (framework::SCREEN_HEIGHT / 2) * 1 / 24;
+		}
+		else
+		{
+			fadeTime = 0;
+			byDay1 = false;
+		}
+	}
+
 #ifdef USE_IMGUI
 	UseImGui();
 #endif
@@ -469,10 +549,11 @@ void SceneGame2::Update()
 	Stage::Get().Update();
 	EnemyManager::Get().Update();
 	Sound::Get().Update();
+	UI::Get().Update();
 
 	GenerateEnemy();
 	JudgeGoNextDay();
-	PlayEnvironment();
+//	PlayEnvironment();
 
 	nightTime++;
 }
@@ -491,11 +572,32 @@ void SceneGame2::Render()
 
 	Stage::Get().Render(V, P);
 	EnemyManager::Get().Render(V, P);
+	UI::Get().Render();
+
+	SetDrawBlendMode(BLEND_MODE::ALPHA);
+	UI::Get().sprBlack->Begin();
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYUp), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2),
+		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2),
+		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	UI::Get().sprBlack->End();
+	if (canSeeString)
+	{
+		UI::Get().sprGameOver->Begin();
+		UI::Get().sprGameOver->Draw(700, 450, 473, 128, 0, 384, 473, 128, 0, 0, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		UI::Get().sprGameOver->End();
+	}
+	SetDrawBlendMode(BLEND_MODE::NONE);
+
 }
 
 void SceneGame2::Uninit()
 {
-
+	for (auto& it : sound)
+	{
+		delete it;
+		it = nullptr;
+	}
 }
 
 #ifdef USE_IMGUI
@@ -608,11 +710,32 @@ void SceneGame2::GenerateEnemy()
 
 void SceneGame2::JudgeGoNextDay()
 {
+//	if (nightTime >= TOTAL_NIGHTS)
+//	{
+//		SceneManager::Get().SetScene(SceneManager::MAIN_GAME3);
+//	}
+
 	if (nightTime >= TOTAL_NIGHTS)
 	{
-		SceneManager::Get().SetScene(SceneManager::MAIN_GAME3);
+		goDay3 = true;
 	}
-
+	if (goDay3)
+	{
+		fadeTime++;
+		if (fadeTime <= 24)
+		{
+			fadePosYUp += (framework::SCREEN_HEIGHT / 2) * 1 / 24;
+			fadePosYDown -= (framework::SCREEN_HEIGHT / 2) * 1 / 24;
+		}
+		else if (count++ < 60)
+		{
+			canSeeString = true;
+		}
+		else
+		{
+			SceneManager::Get().SetScene(SceneManager::MAIN_GAME3);
+		}
+	}
 }
 
 void SceneGame2::PlayEnvironment()
@@ -730,15 +853,16 @@ void SceneGame2::PlayEnvironment()
 
 
 #pragma region Day3
+int SceneGame3::nightTime;
 void SceneGame3::Init()
 {
 	// エネミーの生成間隔
-	GENERATE_ENEMY_MIN = 300;
-	GENERATE_ENEMY_MAX = 500;
+	GENERATE_ENEMY_MIN = 1320;
+	GENERATE_ENEMY_MAX = 1500;
 	// 敵ごとの生成確率
-	GENERATE_PER_ENEMY1 = 70;
-	GENERATE_PER_ENEMY2 = 30;
-	GENERATE_PER_ENEMY3 = 0;
+	GENERATE_PER_ENEMY1 = 30;
+	GENERATE_PER_ENEMY2 = 40;
+	GENERATE_PER_ENEMY3 = 30;
 	generateEnemyCount = 0;
 	thisTimeGeneratePerCount = 90;
 
@@ -757,7 +881,7 @@ void SceneGame3::Init()
 
 	debugLightRange[0] = 100.0f;
 	debugLightRange[1] = 100.0f;
-	debugLightRange[2] = 160.0f;
+	debugLightRange[2] = 100.0f;
 	debugLightRange[3] = 0.0f;
 	debugLightRange[4] = 0.0f;
 
@@ -767,7 +891,9 @@ void SceneGame3::Init()
 
 	Stage::Get().Init();
 	EnemyManager::Get().Init();
-	Sound::Get().Init();
+	Sound::Get().Init();	
+	Camera::Get().Init();
+	UI::Get().Init();
 
 	// ライトの設定
 	Light::Init();
@@ -794,8 +920,8 @@ void SceneGame3::Init()
 	sound[SoundType::Walk] = new Audio("Data/Sound/歩く音ブーツ.wav");
 	sound[SoundType::Thunder] = new Audio("Data/Sound/雷.wav");
 
-	PLAY_SOUND_MAX = 300;
-	PLAY_SOUND_MIN = 180;
+	PLAY_SOUND_MAX = 1200;
+	PLAY_SOUND_MIN = 900;
 	SOUND_VOLUME_MAX = 1.0f;
 	SOUND_VOLUME_MIN = 0.5f;
 	int tmp = PLAY_SOUND_MAX - PLAY_SOUND_MIN;
@@ -804,10 +930,30 @@ void SceneGame3::Init()
 	SoundVol = rand() % tmp + SOUND_VOLUME_MIN;
 
 	for (auto& it : soundVol)it = 1.0f;
+
+	byDay2 = true;
+	fadeTime = 0;
+	fadePosYUp = 0.0f;
+	fadePosYDown = framework::SCREEN_HEIGHT / 2;
+//	count = 0;
 }
 
 void SceneGame3::Update()
 {
+	if (byDay2)
+	{
+		fadeTime++;
+		if (fadeTime <= 24)
+		{
+			fadePosYUp -= (framework::SCREEN_HEIGHT / 2) * 1 / 24;
+			fadePosYDown += (framework::SCREEN_HEIGHT / 2) * 1 / 24;
+		}
+		else
+		{
+			fadeTime = 0;
+			byDay2 = false;
+		}
+	}
 #ifdef USE_IMGUI
 	UseImGui();
 #endif
@@ -821,10 +967,11 @@ void SceneGame3::Update()
 	Stage::Get().Update();
 	EnemyManager::Get().Update();
 	Sound::Get().Update();
+	UI::Get().Update();
 
 	GenerateEnemy();
 	JudgeGoClear();
-	PlayEnvironment();
+//	PlayEnvironment();
 
 	nightTime++;
 }
@@ -843,11 +990,27 @@ void SceneGame3::Render()
 
 	Stage::Get().Render(V, P);
 	EnemyManager::Get().Render(V, P);
+	UI::Get().Render();
+
+
+	SetDrawBlendMode(BLEND_MODE::ALPHA);
+	UI::Get().sprBlack->Begin();
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYUp), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2),
+		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2),
+		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	UI::Get().sprBlack->End();
+	SetDrawBlendMode(BLEND_MODE::NONE);
+
 }
 
 void SceneGame3::Uninit()
 {
-
+	for (auto& it : sound)
+	{
+		delete it;
+		it = nullptr;
+	}
 }
 
 #ifdef USE_IMGUI
@@ -1075,6 +1238,7 @@ void SceneGame3::PlayEnvironment()
 		timer = 0;
 	}
 }
+
 
 
 #pragma endregion

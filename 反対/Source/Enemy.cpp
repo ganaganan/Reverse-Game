@@ -43,10 +43,10 @@ void EnemyManager::Init()
 		it.Init();
 	}
 
-	Enemy::ENEMY1_WAIT_COUNT = 300;
+	Enemy::ENEMY1_WAIT_COUNT = 250;
 	Enemy::ENEMY2_WAIT_COUNT = 200;
 	Enemy::ENEMY3_WAIT_COUNT = 300;
-	Enemy::ERASE_COUNT = 60;
+	Enemy::ERASE_COUNT = 72;
 
 	// Set Sound
 	sound[SoundType::MoveDaruma] = new Audio("Data/Sound/‚¾‚é‚Ü.wav");

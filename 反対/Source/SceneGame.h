@@ -59,8 +59,15 @@ private:
 
 private:			
 	//				  FPS  sec  minute
-	int	TOTAL_NIGHTS = 60 * 60 * 1;
-	int nightTime;
+	int	TOTAL_NIGHTS = 60 * 60 * 3;
+	static int nightTime;
+
+	bool	goDay2;
+	bool	canSeeString;
+	int		fadeTime;
+	float	fadePosYUp;
+	float	fadePosYDown;
+	int		count;
 
 public:
 	/*----------------------------------------*/
@@ -116,6 +123,9 @@ protected:
 	void GenerateEnemy();
 	void JudgeGoNextDay();
 	void PlayEnvironment();
+
+	public:
+	static int GetNightTime() { return nightTime; }
 };
 
 
@@ -170,9 +180,16 @@ private:
 
 private:
 	//				  FPS  sec  minute
-	int	TOTAL_NIGHTS = 60 * 60 * 1;
-	int nightTime;
+	int	TOTAL_NIGHTS = 60 * 60 * 3;
+	static int nightTime;
 
+	bool	canSeeString;
+	bool    byDay1;
+	bool	goDay3;
+	int		fadeTime;
+	float	fadePosYUp;
+	float	fadePosYDown;
+	int		count;
 
 public:
 	/*----------------------------------------*/
@@ -228,6 +245,10 @@ protected:
 	void GenerateEnemy();
 	void JudgeGoNextDay();
 	void PlayEnvironment();
+
+		public:
+			static int GetNightTime() { return nightTime; }
+
 };
 
 #pragma endregion
@@ -281,8 +302,14 @@ private:
 
 private:
 	//				  FPS  sec  minute
-	int	TOTAL_NIGHTS = 60 * 60 * 1;
-	int nightTime;
+	int	TOTAL_NIGHTS = 60 * 60 * 3;
+	static int nightTime;
+
+
+	bool    byDay2;
+	int		fadeTime;
+	float	fadePosYUp;
+	float	fadePosYDown;
 
 public:
 	/*----------------------------------------*/
@@ -338,6 +365,10 @@ protected:
 	void GenerateEnemy();
 	void JudgeGoClear();
 	void PlayEnvironment();
+
+		public:
+			static int GetNightTime() { return nightTime; }
+
 };
 
 #pragma endregion

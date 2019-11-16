@@ -22,7 +22,8 @@ void Light::Init()
 {
 	ZeroMemory(pointLight, sizeof(PointLight) * POINT_MAX);
 	//		   %    FPS  seconds
-	battery = 100 * 60 * 5;
+//	battery = 100 * 60 * 3;
+	battery = 14400;
 	isEnableBattery = true;
 	CONSUMPTION_SMALL = 1;
 	CONSUMPTION_MIDIUM = 2;

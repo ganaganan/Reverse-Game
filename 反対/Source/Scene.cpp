@@ -14,9 +14,12 @@ SceneGame2 sceneGame2;
 SceneGame3 sceneGame3;
 SceneClear sceneClear;
 SceneOver  sceneOver;
+SceneTutorial sceneTutorial;
+
 
 BaseScene* scene_tbl[] = {
 	&sceneTitle,
+	&sceneTutorial,
 	&sceneGame,
 	&sceneGame2,
 	&sceneGame3,

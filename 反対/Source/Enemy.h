@@ -99,7 +99,7 @@ public:
 private:
 	EnemyManager() {}
 public:
-	~EnemyManager(){}
+	~EnemyManager() { Uninit(); }
 
 	void Init();
 	void Update();
