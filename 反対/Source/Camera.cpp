@@ -3,6 +3,7 @@
 #include	"../MyLib/GamePad.h"
 #include	"Light.h"
 #include	"Stage.h"
+#include	"Enemy.h"
 
 
 Camera::Camera()
@@ -27,6 +28,9 @@ void Camera::Init()
 	lastState = MoveState::Wait;
 	isMove = false;
 	canPushSwitch = false;
+
+	// Set sound
+	sound[SoundType::Discover] = new Audio("Data/Sound/‚¨‰»‚¯”­Œ©.wav");
 }
 
 /*------------------------------------*/
@@ -149,27 +153,24 @@ void Camera::Player(bool _isNotOperation)
 	}
 	else if(state != MoveState::Wait)
 	{
-		if (state != MoveState::Wait)
-		{
-			lastState = state;
-			state = MoveState::Wait;
-		}
+		lastState = state;
+		state = MoveState::Wait;
 	}
 
-//	if (InputTrigger(XINPUT_B) && canPushSwitch && Light::isEnableBattery)
-//	{
-//		switch (state)
-//		{
-//		case Camera::Shift_Left:
-//			Light::SwitchPointLight(0);
-//			break;
-//		case Camera::Shift_Right:
-//			Light::SwitchPointLight(1);
-//			break;
-//		default:
-//			break;
-//		}
-//	}
+	if (InputTrigger(XINPUT_B) && canPushSwitch && Light::isEnableBattery)
+	{
+		switch (state)
+		{
+		case Camera::Shift_Left:
+			Light::SwitchPointLight(3);
+			break;
+		case Camera::Shift_Right:
+			Light::SwitchPointLight(4);
+			break;
+		default:
+			break;
+		}
+	}
 
 	if (!isMove)return;
 
@@ -211,6 +212,49 @@ void Camera::UseImGui()
 	ImGui::NewLine();
 	ImGui::SliderFloat(" MOVE_SPEED(Frame)", &MOVE_SPEED, 0.1f, 5.0f);
 	ImGui::InputInt(" PEEKING_COUNT(Frame)", &PEEKING_COUNT);
+	ImGui::NewLine();
+
+	switch (state)
+	{
+	case Camera::Wait:
+		ImGui::Text("state : 0");
+		break;
+	case Camera::Shift_Left:
+		ImGui::Text("state : 1");
+		break;
+	case Camera::Shift_Right:
+		ImGui::Text("state : 2");
+		break;
+	default:
+		break;
+	}
+
+	switch (lastState)
+	{
+	case Camera::Wait:
+		ImGui::Text("last : 0");
+		break;
+	case Camera::Shift_Left:
+		ImGui::Text("last : 1");
+		break;
+	case Camera::Shift_Right:
+		ImGui::Text("last : 2");
+		break;
+	default:
+		break;
+	}
+
+	switch (walkState)
+	{
+	case WalkState::Walking:
+		ImGui::Text("walkState : 0");
+		break;
+	case WalkState::Peeking:
+		ImGui::Text("walkState : 1");
+		break;
+	default:
+		break;
+	}
 
 	ImGui::End();
 }
@@ -242,7 +286,7 @@ void Camera::MoveRight()
 		{
 			walkState = Peeking;
 			time = 0;
-			Light::TurnOnPointLight(1);
+//			Light::TurnOnPointLight(1);
 		}
 		break;
 	case Camera::Peeking:
@@ -256,6 +300,10 @@ void Camera::MoveRight()
 		if (time >= PEEKING_COUNT)
 		{
 			time = PEEKING_COUNT;
+			if (CheckLookEnemy(true) && !canPushSwitch)
+			{
+				sound[SoundType::Discover]->Play(false);
+			}
 			canPushSwitch = true;
 		}
 
@@ -291,7 +339,7 @@ void Camera::MoveLeft()
 		{
 			walkState = Peeking;
 			time = 0;
-			Light::TurnOnPointLight(0);
+//			Light::TurnOnPointLight(0);
 		}
 		break;
 	case Camera::Peeking:
@@ -304,6 +352,10 @@ void Camera::MoveLeft()
 		if (time >= PEEKING_COUNT)
 		{
 			time = PEEKING_COUNT;
+			if (CheckLookEnemy(false) && !canPushSwitch)
+			{
+				sound[SoundType::Discover]->Play(false);
+			}
 			canPushSwitch = true;
 		}
 
@@ -327,18 +379,19 @@ void Camera::MoveWait()
 		switch (walkState)
 		{
 		case Camera::Peeking:
+			if (time == 0)
+			{
+				walkState = Camera::Walking;
+				//				Light::TurnOffPointLight(0);
+				return;
+			}
+
 			if (time-- <= PEEKING_COUNT)
 			{
 				canPushSwitch = false;
 				upVector.x = -0.5f * time / PEEKING_COUNT;
 				pos.x += 0.1 * 30 / PEEKING_COUNT;
 				Stage::Get().leftDoorAngle += DirectX::XMConvertToRadians(1.0f) * 30 / PEEKING_COUNT;
-			}
-
-			if (time == 0)
-			{
-				walkState = Camera::Walking;
-				Light::TurnOffPointLight(0);
 			}
 
 			break;
@@ -373,18 +426,19 @@ void Camera::MoveWait()
 		switch (walkState)
 		{
 		case Camera::Peeking:
+			if (time == 0)
+			{
+				walkState = Camera::Walking;
+				//				Light::TurnOffPointLight(1);
+				return;
+			}
+
 			if (time-- <= PEEKING_COUNT)
 			{
 				canPushSwitch = false;
 				upVector.x = 0.5f * time / PEEKING_COUNT;
 				pos.x -= 0.1 * 30 / PEEKING_COUNT;
 				Stage::Get().rightDoorAngle -= DirectX::XMConvertToRadians(1.0f) * 30 / PEEKING_COUNT;
-			}
-
-			if (time == 0)
-			{
-				walkState = Camera::Walking;
-				Light::TurnOffPointLight(1);
 			}
 
 			break;
@@ -412,4 +466,31 @@ void Camera::MoveWait()
 		}
 	}
 
+}
+
+/*------------------------------------*/
+//	”`‚¢‚½‚Æ‚«‚É“G‚ª–ÚŽ‹‚Å‚«‚é‚©
+/*------------------------------------*/
+bool Camera::CheckLookEnemy(bool _isLookRight)
+{
+	for (auto& it : EnemyManager::Get().enemy)
+	{
+		if (!it.GetEnable())continue;
+		switch (_isLookRight)
+		{
+		case true:
+			if (it.nowPoint == Enemy::R_Point1 || it.nowPoint == Enemy::R_Point2 || it.nowPoint == Enemy::R_Point3)
+			{
+				return true;
+			}
+			break;
+		case false:
+			if (it.nowPoint == Enemy::L_Point1 || it.nowPoint == Enemy::L_Point2 || it.nowPoint == Enemy::L_Point3)
+			{
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
 }

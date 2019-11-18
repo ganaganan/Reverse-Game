@@ -4,12 +4,19 @@
 #include <Vector.h>
 
 #include "framework.h"
+#include "Sound.h"
 
 class Camera
 {
 private:
 	float	MOVE_SPEED = 4.0f;
 	int		PEEKING_COUNT = 18;
+
+	enum SoundType
+	{
+		Discover,
+		Max,
+	};
 	enum CameraState
 	{
 		PlayerCamera,
@@ -34,6 +41,7 @@ private:
 	MoveState	lastState;
 	CameraState	cameraState;
 	WalkState	walkState;
+	Audio*		sound[SoundType::Max];
 
 	bool	isMove;
 	bool	canPushSwitch;
@@ -47,7 +55,14 @@ private:
 	float				angle;		// ÉJÉÅÉâÇÃäpìx
 
 public:
-	~Camera(){}
+	~Camera()
+	{
+		for (auto& it : sound)
+		{
+			delete it;
+			it = nullptr;
+		}
+	}
 	void		Init();
 	void		Update(bool _isNotOperation = false);
 
@@ -61,6 +76,8 @@ private:
 	void MoveRight();
 	void MoveLeft();
 	void MoveWait();
+
+	bool CheckLookEnemy(bool _isLookRight);
 
 
 public:

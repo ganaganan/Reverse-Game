@@ -35,11 +35,13 @@ public:
 	};
 
 	DirectX::XMFLOAT3 pos;
+	Point		nowPoint;
+
 private:
 	DirectX::XMFLOAT3 scale;
 
 	EnemyType	type;
-	Point		nowPoint;
+
 	int			moveTime;
 	int			eraseCount;
 	bool		isEnable;
@@ -81,6 +83,7 @@ public:
 		MoveDaruma,
 		MoveGhost,
 		MovePole,
+		DeadMe,
 		Max,
 	};
 
@@ -89,9 +92,9 @@ public:
 
 private:
 	static constexpr int ENEMY_MAX = 50;
-	Enemy enemy[ENEMY_MAX];
 
 public:
+	Enemy enemy[ENEMY_MAX];
 	std::unique_ptr<SkinnedMesh> totemPoleModel;
 	std::unique_ptr<SkinnedMesh> ghostModel;
 	std::unique_ptr<SkinnedMesh> darumaModel;

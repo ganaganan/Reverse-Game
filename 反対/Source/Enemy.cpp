@@ -52,6 +52,7 @@ void EnemyManager::Init()
 	sound[SoundType::MoveDaruma] = new Audio("Data/Sound/だるま.wav");
 	sound[SoundType::MoveGhost] = new Audio("Data/Sound/幽霊飛んでる音.wav");
 	sound[SoundType::MovePole] = new Audio("Data/Sound/重い金属引きずる音.wav");
+	sound[SoundType::DeadMe] = new Audio("Data/Sound/お化け消える.wav");
 	for (auto& it : soundVol)it = 1;
 }
 
@@ -363,7 +364,7 @@ void Enemy::JudgeIsHitLight()
 	{
 	case Point::R_Point1:
 	case Point::R_Point2:
-		if (Light::JudgeLightEnable(1))
+		if (Light::JudgeLightEnable(4))
 		{
 			// ライトにあたっている
 			if (!isPreparationErase)
@@ -377,7 +378,7 @@ void Enemy::JudgeIsHitLight()
 		break;
 	case Point::L_Point1:
 	case Point::L_Point2:
-		if (Light::JudgeLightEnable(0))
+		if (Light::JudgeLightEnable(3))
 		{
 			// ライトにあたっている
 			if (!isPreparationErase)
@@ -557,6 +558,8 @@ void Enemy::MoveCross()
 void Enemy::ErasePreparation()
 {
 	isEnable = false;
+	EnemyManager::Get().sound[EnemyManager::SoundType::DeadMe]->SetPosition(pos);
+	EnemyManager::Get().sound[EnemyManager::SoundType::DeadMe]->Play(false);
 }
 
 /*------------------------------------*/

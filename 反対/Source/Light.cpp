@@ -60,12 +60,19 @@ void Light::Update()
 		break;
 	}
 
+	// バッテリーの残量切れ
 	if (battery <= 0)
 	{
 		battery = 0;
 		isEnableBattery = false;
 		TurnOffPointLight(0);
 		TurnOffPointLight(1);
+		TurnOffPointLight(3);
+		TurnOffPointLight(4);
+
+		// 真ん中を赤くする
+		Light::SetPointLight(2, DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), 150.0f);	// 真ん中
+		Light::amountState = Light::ConsumptionAmount::Small;
 	}
 }
 

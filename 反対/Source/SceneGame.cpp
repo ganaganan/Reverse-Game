@@ -33,15 +33,15 @@ void SceneGame::Init()
 	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
 	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
-	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
-	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
+	debugLightPos[3] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
+	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
 	debugLightRange[0] = 95;
 	debugLightRange[1] = 95;
 	debugLightRange[2] = 100.0f;
-	debugLightRange[3] = 0.0f;
-	debugLightRange[4] = 0.0f;
+	debugLightRange[3] = 95.0f;
+	debugLightRange[4] = 95.0f;
 
 
 	// コンスタントバッファ作成
@@ -65,8 +65,10 @@ void SceneGame::Init()
 	Light::SetPointLight(0, debugLightPos[0]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[0]);	// 左
 	Light::SetPointLight(1, debugLightPos[1]/*DirectX::XMFLOAT3(50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[1]);	// 右
 	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
-	Light::TurnOffPointLight(0);
-	Light::TurnOffPointLight(1);
+	Light::SetPointLight(3, debugLightPos[3]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[3]);	// 左 手動
+	Light::SetPointLight(4, debugLightPos[4]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[4]);	// 右 手動
+	Light::TurnOffPointLight(3);
+	Light::TurnOffPointLight(4);
 	Light::amountState = Light::ConsumptionAmount::Small;
 
 
@@ -452,15 +454,15 @@ void SceneGame2::Init()
 	nowDay = 1;
 
 	// デバッグ用
-	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 75.0f);
-	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 75.0f);
+	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
+	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
 	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
 	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
 
 
-	debugLightRange[0] = 100.0f;
-	debugLightRange[1] = 100.0f;
+	debugLightRange[0] = 95;
+	debugLightRange[1] = 95;
 	debugLightRange[2] = 100.0f;
 	debugLightRange[3] = 0.0f;
 	debugLightRange[4] = 0.0f;
@@ -487,8 +489,10 @@ void SceneGame2::Init()
 	Light::SetPointLight(0, debugLightPos[0]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[0]);	// 左
 	Light::SetPointLight(1, debugLightPos[1]/*DirectX::XMFLOAT3(50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[1]);	// 右
 	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
-	Light::TurnOffPointLight(0);
-	Light::TurnOffPointLight(1);
+	Light::SetPointLight(3, debugLightPos[3]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[3]);	// 左 手動
+	Light::SetPointLight(4, debugLightPos[4]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[4]);	// 右 手動
+	Light::TurnOffPointLight(3);
+	Light::TurnOffPointLight(4);
 	Light::amountState = Light::ConsumptionAmount::Small;
 
 	sound[SoundType::Chaim] = new Audio("Data/Sound/チャイム.wav");
@@ -542,7 +546,7 @@ void SceneGame2::Update()
 	UseImGui();
 #endif
 	// ポイントライトの設定
-	Light::SetPointLight(2, debugLightPos[2], DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
+//	Light::SetPointLight(2, debugLightPos[2], DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
 
 	Light::Update();
 	Camera::Get().Update();
@@ -872,15 +876,15 @@ void SceneGame3::Init()
 
 
 	// デバッグ用
-	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 75.0f);
-	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 75.0f);
+	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
+	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
 	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
 	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
 
 
-	debugLightRange[0] = 100.0f;
-	debugLightRange[1] = 100.0f;
+	debugLightRange[0] = 95;
+	debugLightRange[1] = 95;
 	debugLightRange[2] = 100.0f;
 	debugLightRange[3] = 0.0f;
 	debugLightRange[4] = 0.0f;
@@ -907,8 +911,10 @@ void SceneGame3::Init()
 	Light::SetPointLight(0, debugLightPos[0]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[0]);	// 左
 	Light::SetPointLight(1, debugLightPos[1]/*DirectX::XMFLOAT3(50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[1]);	// 右
 	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
-	Light::TurnOffPointLight(0);
-	Light::TurnOffPointLight(1);
+	Light::SetPointLight(3, debugLightPos[3]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[3]);	// 左 手動
+	Light::SetPointLight(4, debugLightPos[4]/*DirectX::XMFLOAT3(-50.0f, -7.0f, 27.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[4]);	// 右 手動
+	Light::TurnOffPointLight(3);
+	Light::TurnOffPointLight(4);
 	Light::amountState = Light::ConsumptionAmount::Small;
 
 	sound[SoundType::Chaim] = new Audio("Data/Sound/チャイム.wav");
@@ -958,7 +964,7 @@ void SceneGame3::Update()
 	UseImGui();
 #endif
 	// ポイントライトの設定
-	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
+//	Light::SetPointLight(2, debugLightPos[2]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[2]);	// 真ん中
 //	Light::SetPointLight(3, debugLightPos[3]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[3]);	// 左中
 //	Light::SetPointLight(4, debugLightPos[4]/*DirectX::XMFLOAT3(0.0f, -26.0f, 63.0f)*/,		DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), debugLightRange[4]);	// 右中
 
