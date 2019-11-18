@@ -5,18 +5,22 @@
 
 #include "framework.h"
 #include "Sound.h"
+#include "SceneTutorial.h"
 
 class Camera
 {
 private:
 	float	MOVE_SPEED = 4.0f;
 	int		PEEKING_COUNT = 18;
-
+public:
 	enum SoundType
 	{
 		Discover,
+		Switch,
+		ShutDown,//TODO:Lightにいれたい
 		Max,
 	};
+private:
 	enum CameraState
 	{
 		PlayerCamera,
@@ -41,7 +45,6 @@ private:
 	MoveState	lastState;
 	CameraState	cameraState;
 	WalkState	walkState;
-	Audio*		sound[SoundType::Max];
 
 	bool	isMove;
 	bool	canPushSwitch;
@@ -53,6 +56,8 @@ private:
 	DirectX::XMFLOAT3	upVector;	// 上方向ベクトル
 	DirectX::XMMATRIX	projection;	// 投影行列
 	float				angle;		// カメラの角度
+public:
+	Audio* sound[SoundType::Max];
 
 public:
 	~Camera()
@@ -65,7 +70,7 @@ public:
 	}
 	void		Init();
 	void		Update(bool _isNotOperation = false);
-
+	void		UpdateTutorial();
 private:
 	Camera();
 	void		Watch();
@@ -73,9 +78,9 @@ private:
 
 	void UseImGui();
 
-	void MoveRight();
-	void MoveLeft();
-	void MoveWait();
+	void MoveRight(bool _isTutorial = false);
+	void MoveLeft(bool _isTutorial = false);
+	void MoveWait(bool _isTutorial = false);
 
 	bool CheckLookEnemy(bool _isLookRight);
 

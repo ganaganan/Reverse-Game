@@ -37,8 +37,8 @@ void SceneGame::Init()
 	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
-	debugLightRange[0] = 95;
-	debugLightRange[1] = 95;
+	debugLightRange[0] = 80.0f;
+	debugLightRange[1] = 80.0f;
 	debugLightRange[2] = 100.0f;
 	debugLightRange[3] = 95.0f;
 	debugLightRange[4] = 95.0f;
@@ -173,6 +173,7 @@ void SceneGame::Uninit()
 		it = nullptr;
 	}
 	UI::Get().Uninit();
+	EnemyManager::Get().Uninit();
 }
 
 #ifdef USE_IMGUI
@@ -457,15 +458,15 @@ void SceneGame2::Init()
 	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
 	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
-	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
-	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
+	debugLightPos[3] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
+	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
-	debugLightRange[0] = 95;
-	debugLightRange[1] = 95;
+	debugLightRange[0] = 80.0f;
+	debugLightRange[1] = 80.0f;
 	debugLightRange[2] = 100.0f;
-	debugLightRange[3] = 0.0f;
-	debugLightRange[4] = 0.0f;
+	debugLightRange[3] = 95.0f;
+	debugLightRange[4] = 95.0f;
 
 
 	// コンスタントバッファ作成
@@ -602,6 +603,7 @@ void SceneGame2::Uninit()
 		delete it;
 		it = nullptr;
 	}
+	EnemyManager::Get().Uninit();
 }
 
 #ifdef USE_IMGUI
@@ -861,8 +863,8 @@ int SceneGame3::nightTime;
 void SceneGame3::Init()
 {
 	// エネミーの生成間隔
-	GENERATE_ENEMY_MIN = 1320;
-	GENERATE_ENEMY_MAX = 1500;
+	GENERATE_ENEMY_MIN = 1150;
+	GENERATE_ENEMY_MAX = 1300;
 	// 敵ごとの生成確率
 	GENERATE_PER_ENEMY1 = 30;
 	GENERATE_PER_ENEMY2 = 40;
@@ -879,15 +881,15 @@ void SceneGame3::Init()
 	debugLightPos[0] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
 	debugLightPos[1] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 	debugLightPos[2] = DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f);
-	debugLightPos[3] = DirectX::XMFLOAT3(-100.0f, 10.0f, 85.0f);
-	debugLightPos[4] = DirectX::XMFLOAT3(100.0f, 10.0f, 85.0f);
+	debugLightPos[3] = DirectX::XMFLOAT3(-38.0f, 25.0f, 55.0f);
+	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
-	debugLightRange[0] = 95;
-	debugLightRange[1] = 95;
+	debugLightRange[0] = 80.0f;
+	debugLightRange[1] = 80.0f;
 	debugLightRange[2] = 100.0f;
-	debugLightRange[3] = 0.0f;
-	debugLightRange[4] = 0.0f;
+	debugLightRange[3] = 95.0f;
+	debugLightRange[4] = 95.0f;
 
 
 	// コンスタントバッファ作成
@@ -1017,6 +1019,7 @@ void SceneGame3::Uninit()
 		delete it;
 		it = nullptr;
 	}
+	EnemyManager::Get().Uninit();
 }
 
 #ifdef USE_IMGUI

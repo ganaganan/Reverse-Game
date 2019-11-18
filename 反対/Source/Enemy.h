@@ -64,8 +64,8 @@ public:
 	void MoveEnemy3();
 	void MoveCross();
 
-	void MoveRightPoint();
-	void MoveLeftPoint();
+	void MoveRightPoint(bool _isGhost = false);
+	void MoveLeftPoint(bool _isGhost = false);
 	void JudgeIsHitLight();
 	void ErasePreparation();
 	void EraseThisInstance();
@@ -80,9 +80,9 @@ class EnemyManager
 public:
 	enum SoundType
 	{
-		MoveDaruma,
-		MoveGhost,
 		MovePole,
+		MoveGhost,
+		MoveDaruma,
 		DeadMe,
 		Max,
 	};

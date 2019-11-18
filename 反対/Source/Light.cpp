@@ -3,6 +3,9 @@
 #include <Windows.h>
 #include <framework.h>
 
+#include "BaseScene.h"
+#include "Camera.h"
+
 DirectX::XMFLOAT4 Light::lightDir(1.0f, 1.0f, 1.0f, 1.0f);
 DirectX::XMFLOAT4 Light::dirLightColor(1.0f, 1.0f, 1.0f, 1.0f);
 DirectX::XMFLOAT4 Light::ambient(1.0f, 1.0f, 1.0f, 1.0f);
@@ -22,8 +25,15 @@ void Light::Init()
 {
 	ZeroMemory(pointLight, sizeof(PointLight) * POINT_MAX);
 	//		   %    FPS  seconds
-//	battery = 100 * 60 * 3;
-	battery = 14400;
+//	battery = 100 * 60 * 4.5;
+	if (BaseScene::GetNowDay() == 0)
+	{
+		battery = 16200;
+	}
+	else
+	{
+		battery = 14400;
+	}
 	isEnableBattery = true;
 	CONSUMPTION_SMALL = 1;
 	CONSUMPTION_MIDIUM = 2;
@@ -64,6 +74,10 @@ void Light::Update()
 	if (battery <= 0)
 	{
 		battery = 0;
+		if (isEnableBattery)
+		{
+			Camera::Get().sound[Camera::SoundType::ShutDown]->Play(false);
+		}
 		isEnableBattery = false;
 		TurnOffPointLight(0);
 		TurnOffPointLight(1);
@@ -73,6 +87,7 @@ void Light::Update()
 		// ê^ÇÒíÜÇê‘Ç≠Ç∑ÇÈ
 		Light::SetPointLight(2, DirectX::XMFLOAT3(0.0f, 60.0f, 2.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), 150.0f);	// ê^ÇÒíÜ
 		Light::amountState = Light::ConsumptionAmount::Small;
+
 	}
 }
 

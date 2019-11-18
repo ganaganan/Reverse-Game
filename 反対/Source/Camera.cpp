@@ -31,6 +31,8 @@ void Camera::Init()
 
 	// Set sound
 	sound[SoundType::Discover] = new Audio("Data/Sound/お化け発見.wav");
+	sound[SoundType::Switch] = new Audio("Data/Sound/スイッチ音.wav");
+	sound[SoundType::ShutDown] = new Audio("Data/Sound/ブレーカーOFF.wav");
 }
 
 /*------------------------------------*/
@@ -157,7 +159,7 @@ void Camera::Player(bool _isNotOperation)
 		state = MoveState::Wait;
 	}
 
-	if (InputTrigger(XINPUT_B) && canPushSwitch && Light::isEnableBattery)
+	if (InputTrigger(XINPUT_A) && canPushSwitch && Light::isEnableBattery)
 	{
 		switch (state)
 		{
@@ -170,6 +172,7 @@ void Camera::Player(bool _isNotOperation)
 		default:
 			break;
 		}
+		sound[SoundType::Switch]->Play(false);
 	}
 
 	if (!isMove)return;
@@ -264,7 +267,7 @@ void Camera::UseImGui()
 //	右に倒している時の動き
 /*------------------------------------*/
 // (18, 15, 27)
-void Camera::MoveRight()
+void Camera::MoveRight(bool _isTutorial)
 {
 	Gana::Vector3 dirVec;
 	DirectX::XMFLOAT3 targetPos;
@@ -305,6 +308,10 @@ void Camera::MoveRight()
 				sound[SoundType::Discover]->Play(false);
 			}
 			canPushSwitch = true;
+			if (_isTutorial)
+			{
+				SceneTutorial::endOfPeek = true;
+			}
 		}
 
 		break;
@@ -317,7 +324,7 @@ void Camera::MoveRight()
 //	左に倒している時の動き
 /*------------------------------------*/
 // (-18, 15, 27)
-void Camera::MoveLeft()
+void Camera::MoveLeft(bool _isTutorial)
 {
 	Gana::Vector3 dirVec;
 	DirectX::XMFLOAT3 targetPos;
@@ -357,6 +364,10 @@ void Camera::MoveLeft()
 				sound[SoundType::Discover]->Play(false);
 			}
 			canPushSwitch = true;
+			if (_isTutorial)
+			{
+				SceneTutorial::endOfPeek = true;
+			}
 		}
 
 		break;
@@ -369,7 +380,7 @@ void Camera::MoveLeft()
 /*------------------------------------*/
 //	倒していない時の動き
 /*------------------------------------*/
-void Camera::MoveWait()
+void Camera::MoveWait(bool _isTutorial)
 {
 	if (lastState == MoveState::Shift_Left)
 	{
@@ -411,6 +422,10 @@ void Camera::MoveWait()
 			{
 				isMove = false;
 				pos = targetPos;
+				if (_isTutorial)
+				{
+					SceneTutorial::endOfLeft = true;
+				}
 			}
 
 			break;
@@ -458,6 +473,10 @@ void Camera::MoveWait()
 			{
 				isMove = false;
 				pos = targetPos;
+				if (_isTutorial)
+				{
+					SceneTutorial::endOfRight = true;
+				}
 			}
 
 			break;
@@ -466,6 +485,208 @@ void Camera::MoveWait()
 		}
 	}
 
+}
+
+/*------------------------------------*/
+//	チュートリアル用の更新関数
+/*------------------------------------*/
+void Camera::UpdateTutorial()
+{
+	switch (SceneTutorial::state)
+	{
+	case SceneTutorial::OpenEye:
+		break;
+	case SceneTutorial::FellOverLeft:
+		if (InputState(XINPUT_DPAD_LEFT))
+		{
+			if (!isMove)
+			{
+				lastState = state;
+				state = MoveState::Shift_Left;
+				isMove = true;
+
+			}
+		}
+		else if (state != MoveState::Wait)
+		{
+			lastState = state;
+			state = MoveState::Wait;
+		}
+
+		if (!isMove)return;
+
+		switch (state)
+		{
+		case Camera::Wait:
+			MoveWait();
+			break;
+		case Camera::Shift_Left:
+			MoveLeft(true);
+			break;
+		default:
+			break;
+		}
+
+		target = pos;
+		target.z += 1.0f;
+
+		break;
+	case SceneTutorial::OnLight:
+		if (InputTrigger(XINPUT_A) && canPushSwitch && Light::isEnableBattery)
+		{
+			switch (state)
+			{
+			case Camera::Shift_Left:
+				Light::SwitchPointLight(3);
+				break;
+			case Camera::Shift_Right:
+				Light::SwitchPointLight(4);
+				break;
+			default:
+				break;
+			}
+			sound[SoundType::Switch]->Play(false);
+		}
+		break;
+	case SceneTutorial::OffLight:
+		if (InputTrigger(XINPUT_A) && canPushSwitch && Light::isEnableBattery)
+		{
+			switch (state)
+			{
+			case Camera::Shift_Left:
+				Light::SwitchPointLight(3);
+				break;
+			case Camera::Shift_Right:
+				Light::SwitchPointLight(4);
+				break;
+			default:
+				break;
+			}
+			sound[SoundType::Switch]->Play(false);
+		}
+		break;
+
+	case SceneTutorial::Back:
+		if (state != MoveState::Wait)
+		{
+			lastState = state;
+			state = MoveState::Wait;
+		}
+
+		if (!isMove)return;
+
+		switch (state)
+		{
+		case Camera::Wait:
+			MoveWait(true);
+			break;
+		default:
+			break;
+		}
+
+		target = pos;
+		target.z += 1.0f;
+		break;
+
+	case SceneTutorial::FellOverRight:
+		if (InputState(XINPUT_DPAD_RIGHT))
+		{
+			if (!isMove)
+			{
+				lastState = state;
+				state = MoveState::Shift_Right;
+				isMove = true;
+
+			}
+		}
+		else if (state != MoveState::Wait)
+		{
+			lastState = state;
+			state = MoveState::Wait;
+		}
+
+		if (!isMove)return;
+
+		switch (state)
+		{
+		case Camera::Wait:
+			MoveWait(true);
+			break;
+		case Camera::Shift_Right:
+			MoveRight(true);
+			break;
+		default:
+			break;
+		}
+
+		target = pos;
+		target.z += 1.0f;
+
+		break;
+	case SceneTutorial::KillGhost:
+		if (InputTrigger(XINPUT_A) && canPushSwitch && Light::isEnableBattery)
+		{
+			switch (state)
+			{
+			case Camera::Shift_Left:
+				Light::SwitchPointLight(3);
+				break;
+			case Camera::Shift_Right:
+				Light::SwitchPointLight(4);
+				break;
+			default:
+				break;
+			}
+			sound[SoundType::Switch]->Play(false);
+		}
+		break;
+	case SceneTutorial::OffLight2:
+		if (InputTrigger(XINPUT_A) && canPushSwitch && Light::isEnableBattery)
+		{
+			switch (state)
+			{
+			case Camera::Shift_Left:
+				Light::SwitchPointLight(3);
+				break;
+			case Camera::Shift_Right:
+				Light::SwitchPointLight(4);
+				break;
+			default:
+				break;
+			}
+			sound[SoundType::Switch]->Play(false);
+		}
+		break;
+	case SceneTutorial::Back2:
+		if (state != MoveState::Wait)
+		{
+			lastState = state;
+			state = MoveState::Wait;
+		}
+
+		if (!isMove)return;
+
+		switch (state)
+		{
+		case Camera::Wait:
+			MoveWait(true);
+			break;
+		default:
+			break;
+		}
+
+		target = pos;
+		target.z += 1.0f;
+		break;
+
+		break;
+	case SceneTutorial::WarningSound:
+		break;
+	case SceneTutorial::Start:
+		break;
+	default:
+		break;
+	}
 }
 
 /*------------------------------------*/
@@ -479,13 +700,13 @@ bool Camera::CheckLookEnemy(bool _isLookRight)
 		switch (_isLookRight)
 		{
 		case true:
-			if (it.nowPoint == Enemy::R_Point1 || it.nowPoint == Enemy::R_Point2 || it.nowPoint == Enemy::R_Point3)
+			if (it.nowPoint == Enemy::R_Point1 || it.nowPoint == Enemy::R_Point2)
 			{
 				return true;
 			}
 			break;
 		case false:
-			if (it.nowPoint == Enemy::L_Point1 || it.nowPoint == Enemy::L_Point2 || it.nowPoint == Enemy::L_Point3)
+			if (it.nowPoint == Enemy::L_Point1 || it.nowPoint == Enemy::L_Point2)
 			{
 				return true;
 			}

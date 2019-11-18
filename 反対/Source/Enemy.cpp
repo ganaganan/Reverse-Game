@@ -16,17 +16,17 @@ int Enemy::ERASE_COUNT;
 //	各ポイントの位置情報
 /*------------------------------------*/
 DirectX::XMFLOAT3 pointPosition[] = {
-	{  38.0f, 10.0f, 80.0f },	// R_Point1
-	{  38.0f, 10.0f, 100.0f },	// R_Point2
-	{  38.0f, 10.0f, 120.0f },	// R_Point3
-	{  38.0f, 10.0f, 140.0f },	// R_Point4
-	{  38.0f, 10.0f, 160.0f },	// R_Point5
+	{  38.0f, 10.0f, 100.0f },	// R_Point1
+	{  38.0f, 10.0f, 120.0f },	// R_Point2
+	{  38.0f, 10.0f, 140.0f },	// R_Point3
+	{  38.0f, 10.0f, 160.0f },	// R_Point4
+	{  38.0f, 10.0f, 180.0f },	// R_Point5
 
-	{ -38.0f, 10.0f, 80.0f },	// L_Point1
-	{ -38.0f, 10.0f, 100.0f },	// L_Point2
-	{ -38.0f, 10.0f, 120.0f },	// L_Point3
-	{ -38.0f, 10.0f, 140.0f },	// L_Point4
-	{ -38.0f, 10.0f, 160.0f },	// L_Point5
+	{ -38.0f, 10.0f, 100.0f },	// L_Point1
+	{ -38.0f, 10.0f, 120.0f },	// L_Point2
+	{ -38.0f, 10.0f, 140.0f },	// L_Point3
+	{ -38.0f, 10.0f, 160.0f },	// L_Point4
+	{ -38.0f, 10.0f, 180.0f },	// L_Point5
 };
 
 /*------------------------------------*/
@@ -279,8 +279,8 @@ void Enemy::MoveEnemy1()
 		pos = pointPosition[nowPoint];
 		pos.y = 0.0f;
 		moveTime = 0;
-		EnemyManager::Get().sound[EnemyManager::SoundType::MoveDaruma]->SetPosition(pos);
-		EnemyManager::Get().sound[EnemyManager::SoundType::MoveDaruma]->Play(false);
+//		EnemyManager::Get().sound[EnemyManager::SoundType::MoveDaruma]->SetPosition(pos);
+//		EnemyManager::Get().sound[EnemyManager::SoundType::MoveDaruma]->Play(false);
 	}
 }
 
@@ -290,17 +290,17 @@ void Enemy::MoveEnemy2()
 	{
 		if (nowPoint >= Point::R_Point1 && Point::R_Point5 >= nowPoint)
 		{
-			MoveRightPoint();
+			MoveRightPoint(true);
 		}
 		else
 		{
-			MoveLeftPoint();
+			MoveLeftPoint(true);
 
 		}
 		pos = pointPosition[nowPoint];
 		moveTime = 0;
-		EnemyManager::Get().sound[EnemyManager::SoundType::MoveGhost]->SetPosition(pos);
-		EnemyManager::Get().sound[EnemyManager::SoundType::MoveGhost]->Play(false);
+//		EnemyManager::Get().sound[EnemyManager::SoundType::MoveGhost]->SetPosition(pos);
+//		EnemyManager::Get().sound[EnemyManager::SoundType::MoveGhost]->Play(false);
 	}
 }
 
@@ -329,8 +329,8 @@ void Enemy::MoveEnemy3()
 		pos = pointPosition[nowPoint];
 		pos.y = 0.0f;
 		moveTime = 0;
-		EnemyManager::Get().sound[EnemyManager::SoundType::MovePole]->SetPosition(pos);
-		EnemyManager::Get().sound[EnemyManager::SoundType::MovePole]->Play(false);
+//		EnemyManager::Get().sound[EnemyManager::SoundType::MovePole]->SetPosition(pos);
+//		EnemyManager::Get().sound[EnemyManager::SoundType::MovePole]->Play(false);
 
 	}
 }
@@ -363,7 +363,7 @@ void Enemy::JudgeIsHitLight()
 	switch (nowPoint)
 	{
 	case Point::R_Point1:
-	case Point::R_Point2:
+//	case Point::R_Point2:
 		if (Light::JudgeLightEnable(4))
 		{
 			// ライトにあたっている
@@ -377,7 +377,7 @@ void Enemy::JudgeIsHitLight()
 		}
 		break;
 	case Point::L_Point1:
-	case Point::L_Point2:
+//	case Point::L_Point2:
 		if (Light::JudgeLightEnable(3))
 		{
 			// ライトにあたっている
@@ -398,52 +398,105 @@ void Enemy::JudgeIsHitLight()
 /*------------------------------------*/
 //	右側の移動関数
 /*------------------------------------*/
-void Enemy::MoveRightPoint()
+void Enemy::MoveRightPoint(bool _isGhost)
 {
-	if (Camera::Get().GetCanPushSwitch() && Camera::Get().GetMoveState() == Camera::MoveState::Shift_Right)return;
-
-	switch (nowPoint)
+	if (Camera::Get().GetCanPushSwitch() && Camera::Get().GetMoveState() == Camera::MoveState::Shift_Right)
 	{
-	case Point::R_Point5:
-		nowPoint = Point::R_Point4;
-		break;
-	case Point::R_Point4:
-		nowPoint = Point::R_Point3;
-		break;
-	case Point::R_Point3:
-		nowPoint = Point::R_Point2;
-		break;
-	case Point::R_Point2:
-		nowPoint = Point::R_Point1;
-		break;
-	case Point::R_Point1:
-//		nowPoint = Point::R_Point4;
-		switch (type)
+		EnemyManager::Get().sound[static_cast<int>(type)]->Stop();
+		return;
+	}
+
+	if (_isGhost)
+	{
+		switch (nowPoint)
 		{
-		case Enemy::EnemyType::TotemPole:
-			BaseScene::lastEnemyType = 2;
+		case Point::R_Point5:
+			nowPoint = Point::R_Point3;
 			break;
-		case Enemy::EnemyType::Ghost:
-			BaseScene::lastEnemyType = 1;
+		case Point::R_Point4:
+			nowPoint = Point::R_Point3;
 			break;
-		case Enemy::EnemyType::Daruma:
-			BaseScene::lastEnemyType = 0;
+		case Point::R_Point3:
+			nowPoint = Point::R_Point1;
 			break;
-		default:
+		case Point::R_Point2:
+			nowPoint = Point::R_Point1;
+			break;
+		case Point::R_Point1:
+			//		nowPoint = Point::R_Point4;
+			switch (type)
+			{
+			case Enemy::EnemyType::TotemPole:
+				BaseScene::lastEnemyType = 2;
+				break;
+			case Enemy::EnemyType::Ghost:
+				BaseScene::lastEnemyType = 1;
+				break;
+			case Enemy::EnemyType::Daruma:
+				BaseScene::lastEnemyType = 0;
+				break;
+			default:
+				break;
+			}
+
+			SceneManager::Get().SetScene(SceneManager::GAME_OVER);
+
 			break;
 		}
-		SceneManager::Get().SetScene(SceneManager::GAME_OVER);
-		
-		break;
 	}
+	else
+	{
+		switch (nowPoint)
+		{
+		case Point::R_Point5:
+			nowPoint = Point::R_Point4;
+			break;
+		case Point::R_Point4:
+			nowPoint = Point::R_Point3;
+			break;
+		case Point::R_Point3:
+			nowPoint = Point::R_Point2;
+			break;
+		case Point::R_Point2:
+			nowPoint = Point::R_Point1;
+			break;
+		case Point::R_Point1:
+			//		nowPoint = Point::R_Point4;
+			switch (type)
+			{
+			case Enemy::EnemyType::TotemPole:
+				BaseScene::lastEnemyType = 2;
+				break;
+			case Enemy::EnemyType::Ghost:
+				BaseScene::lastEnemyType = 1;
+				break;
+			case Enemy::EnemyType::Daruma:
+				BaseScene::lastEnemyType = 0;
+				break;
+			default:
+				break;
+			}
+
+			SceneManager::Get().SetScene(SceneManager::GAME_OVER);
+
+			break;
+		}
+	}
+	EnemyManager::Get().sound[static_cast<int>(type)]->SetPosition(pos);
+	EnemyManager::Get().sound[static_cast<int>(type)]->Play(false);
+
 }
 
 /*------------------------------------*/
 //	左側の移動関数
 /*------------------------------------*/
-void Enemy::MoveLeftPoint()
+void Enemy::MoveLeftPoint(bool _isGhost)
 {
-	if (Camera::Get().GetCanPushSwitch() && Camera::Get().GetMoveState() == Camera::MoveState::Shift_Left)return;
+	if (Camera::Get().GetCanPushSwitch() && Camera::Get().GetMoveState() == Camera::MoveState::Shift_Left)
+	{
+		EnemyManager::Get().sound[static_cast<int>(type)]->Stop();
+		return;
+	}
 
 	switch (nowPoint)
 	{
@@ -478,6 +531,8 @@ void Enemy::MoveLeftPoint()
 		SceneManager::Get().SetScene(SceneManager::GAME_OVER);
 		break;
 	}
+	EnemyManager::Get().sound[static_cast<int>(type)]->SetPosition(pos);
+	EnemyManager::Get().sound[static_cast<int>(type)]->Play(false);
 
 }
 
