@@ -3,7 +3,7 @@
 #include	"BaseScene.h"
 using namespace easing;
 
-
+// TODO : Sound 変更 saTimer -> playbackTime
 Sound::Sound()
 {
 
@@ -27,15 +27,15 @@ Sound::~Sound()
 void Sound::Init()
 {
 	count = 0;
-	saTimer = 0;
+	playbackTime = 0;
 	soundType = SoundType::Max;
 
 	rainSound								= new Audio("Data/Sound/Rain.wav");
 	aroundStageSound[SoundType::Thunder]	= new Audio("Data/Sound/雷.wav");
 	aroundStageSound[SoundType::Wind]		= new Audio("Data/Sound/風で木の葉が揺れる音.wav");
 	aroundStageSound[SoundType::Chime]		= new Audio("Data/Sound/チャイム.wav");
-	aroundStageSound[SoundType::Ringtone]	= new Audio("Data/Sound/電話.wav");
-	aroundStageSound[SoundType::Footsteps]	= new Audio("Data/Sound/歩く音ブーツ.wav");
+	aroundStageSound[SoundType::Ambulance]	= new Audio("Data/Sound/救急車.wav");
+	aroundStageSound[SoundType::Footsteps]	= new Audio("Data/Sound/通り過ぎる敵の足音.wav");	// TODO : Sound 変更 path name 歩く音ブーツ(?) -> 通り過ぎる敵の足音
 	aroundStageSound[SoundType::Pass]		= new Audio("Data/Sound/通りゃんせ.wav");
 
 	rainSound->SetPosition(XMFLOAT3(0, 0, 0));
@@ -50,7 +50,7 @@ void Sound::Update()
 {
 	if (count-- > 0)
 	{
-		VolumeAttenuation();
+		VolumeDecay();
 		return;
 	}
 
@@ -59,6 +59,7 @@ void Sound::Update()
 	position.z = static_cast<float>(rand() % static_cast<int>(Audio::FRONT_MAX));
 
 	soundType = rand() % SoundType::Max;
+
 	int date = BaseScene::GetNowDay();
 	switch (date)
 	{
@@ -81,10 +82,9 @@ void Sound::Update()
 		break;
 	}
 
-
 	aroundStageSound[soundType]->SetPosition(position);
 	aroundStageSound[soundType]->Play(false);
-	saTimer = 0;
+	playbackTime = 0;
 
 //	count = saTimer + PLAY_SOUND_PER_SECOND;						// 一定時間おきに音鳴らす方
 	count = static_cast<int>(playTime[soundType]) + rand() % 3 * 60 + (PLAY_SOUND_PER_SECOND - 1 * 60);	// 乱数を用いる方
@@ -93,20 +93,21 @@ void Sound::Update()
 /*------------------------------------*/
 //	音の減衰関数	(終わりにかけて小さく)
 /*------------------------------------*/
-void Sound::VolumeAttenuation()
+void Sound::VolumeDecay()	// TODO : Sound 変更 関数名 VolumeAttention(?) -> VolumeDecay
 {
 	float volume;
 	switch (soundType)
 	{
 	// 減衰させるやつだけあれする
 	case SoundType::Wind:
-		volume = InExp(saTimer, playTime[soundType], 0.0f, 1.0f);
+		volume = InExp(playbackTime, playTime[soundType], 0.0f, 1.0f);
 		if (volume < 0)	volume = 0;
 		aroundStageSound[soundType]->SetVolume(volume);
 		break;
-	case SoundType::Chime:
-		volume = 0.0f;
-		break;
+
+		// TODO : Sound 削除 case SoundType::Chime
+
 	default:	break;
 	}
+	playbackTime++;	// TODO : Sound 追加 or 変更 playbackTimeをインクリメントする
 }

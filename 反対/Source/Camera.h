@@ -62,13 +62,10 @@ public:
 public:
 	~Camera()
 	{
-		for (auto& it : sound)
-		{
-			delete it;
-			it = nullptr;
-		}
+		Uninit();
 	}
 	void		Init();
+	void		Uninit();
 	void		Update(bool _isNotOperation = false);
 	void		UpdateTutorial();
 private:

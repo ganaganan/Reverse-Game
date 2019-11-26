@@ -26,6 +26,7 @@ void Camera::Init()
 	cameraState = CameraState::PlayerCamera;
 	state = MoveState::Wait;
 	lastState = MoveState::Wait;
+	walkState = WalkState::Walking;
 	isMove = false;
 	canPushSwitch = false;
 
@@ -33,6 +34,17 @@ void Camera::Init()
 	sound[SoundType::Discover] = new Audio("Data/Sound/お化け発見.wav");
 	sound[SoundType::Switch] = new Audio("Data/Sound/スイッチ音.wav");
 	sound[SoundType::ShutDown] = new Audio("Data/Sound/ブレーカーOFF.wav");
+}
+
+void Camera::Uninit()
+{
+	for (auto& it : sound)
+	{
+		if (!it)continue;
+
+		delete it;
+		it = nullptr;
+	}
 }
 
 /*------------------------------------*/
@@ -700,13 +712,13 @@ bool Camera::CheckLookEnemy(bool _isLookRight)
 		switch (_isLookRight)
 		{
 		case true:
-			if (it.nowPoint == Enemy::R_Point1 || it.nowPoint == Enemy::R_Point2)
+			if (it.nowPoint == Enemy::R_Point1/* || it.nowPoint == Enemy::R_Point2*/)
 			{
 				return true;
 			}
 			break;
 		case false:
-			if (it.nowPoint == Enemy::L_Point1 || it.nowPoint == Enemy::L_Point2)
+			if (it.nowPoint == Enemy::L_Point1/* || it.nowPoint == Enemy::L_Point2*/)
 			{
 				return true;
 			}

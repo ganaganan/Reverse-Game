@@ -1,5 +1,6 @@
 #include "Stage.h"
 #include "FilePath.h"
+#include "BaseScene.h"
 
 float posX;
 float posY;
@@ -10,8 +11,14 @@ float pos2Z;
 
 void Stage::Init()
 {
-	if (!stageModel)
+	if (BaseScene::GetNowDay() == 2)
+	{
+		stageModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::KowaiStage));
+	}
+	else
+	{
 		stageModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Stage));
+	}
 	if (!rightDoorModel)
 		rightDoorModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::RightDoor));
 	if (!leftDoorModel)

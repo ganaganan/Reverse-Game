@@ -23,6 +23,8 @@ void SceneTitle::Init()
 //	rightDoorModel = std::make_unique<SkinnedMesh>(GetModelPath(ModelAttribute::RightDoor));
 //	leftDoorModel = std::make_unique<SkinnedMesh>(GetModelPath(ModelAttribute::LeftDoor));
 
+	nowDay = 0;
+
 	Camera::Get().Init();
 	Stage::Get().Init();
 
@@ -220,6 +222,7 @@ void SceneTitle::Uninit()
 		delete sound;
 		sound = nullptr;
 	}
+
 	//for (auto& it : debugSound)
 	//{
 	//	delete it;

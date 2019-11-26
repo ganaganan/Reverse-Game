@@ -4,21 +4,20 @@
 #include <Vector.h>
 
 #include "../MyLib/Audio.h"
+#include "framework.h"
 
 class Sound
 {
 private:
 	static constexpr int	PLAY_SOUND_PER_SECOND = 8 * 60;
-//	static constexpr float	RIGHT_MAX = 100;
-//	static constexpr float	LEFT_MAX = -100;
-//	static constexpr float	FRONT_MAX = 1000;
+public:	// TODO : Sound 追加 SoundTypeのみpublic
 	enum SoundType
 	{
 //		Rain,		// 雨
 		Thunder,	// 雷
 		Wind,		// 風
 		Chime,		// チャイム
-		Ringtone,	// 電話
+		Ambulance,	// 救急車
 		Footsteps,	// 足音
 		Pass,		// 通りゃんせ
 		Max,
@@ -40,16 +39,21 @@ private:
 
 	int		soundType;
 	int		count;
-	float	saTimer;
+
+public:
+	// TODO : Sound 変数名の変更 saTimer -> playbackTime
+	int		playbackTime;		// 現在の再生時間(frame)
 
 public:
 	virtual	~Sound();
 	void	Init();
 	void	Update();
+	// TODO : Sound ゲッターの追加
+	int		GetSoundType() { return soundType; }
 
 private:
 	Sound();
-	void	VolumeAttenuation();
+	void	VolumeDecay();	// TODO : Sound 関数名の変更 VolumeAttention(?) -> VolumeDecay
 
 #ifdef USE_IMGUI
 	void	UseImGui() {}

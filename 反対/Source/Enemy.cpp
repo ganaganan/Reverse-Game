@@ -15,18 +15,32 @@ int Enemy::ERASE_COUNT;
 /*------------------------------------*/
 //	各ポイントの位置情報
 /*------------------------------------*/
+//DirectX::XMFLOAT3 pointPosition[] = {
+//	{  38.0f, 10.0f, 100.0f },	// R_Point1
+//	{  38.0f, 10.0f, 120.0f },	// R_Point2
+//	{  38.0f, 10.0f, 140.0f },	// R_Point3
+//	{  38.0f, 10.0f, 160.0f },	// R_Point4
+//	{  38.0f, 10.0f, 180.0f },	// R_Point5
+//
+//	{ -38.0f, 10.0f, 100.0f },	// L_Point1
+//	{ -38.0f, 10.0f, 120.0f },	// L_Point2
+//	{ -38.0f, 10.0f, 140.0f },	// L_Point3
+//	{ -38.0f, 10.0f, 160.0f },	// L_Point4
+//	{ -38.0f, 10.0f, 180.0f },	// L_Point5
+//};
+
 DirectX::XMFLOAT3 pointPosition[] = {
 	{  38.0f, 10.0f, 100.0f },	// R_Point1
 	{  38.0f, 10.0f, 120.0f },	// R_Point2
-	{  38.0f, 10.0f, 140.0f },	// R_Point3
-	{  38.0f, 10.0f, 160.0f },	// R_Point4
-	{  38.0f, 10.0f, 180.0f },	// R_Point5
+	{  38.0f, 10.0f, 200.0f },	// R_Point3
+	{  38.0f, 10.0f, 350.0f },	// R_Point4
+	{  38.0f, 10.0f, 500.0f },	// R_Point5
 
 	{ -38.0f, 10.0f, 100.0f },	// L_Point1
 	{ -38.0f, 10.0f, 120.0f },	// L_Point2
-	{ -38.0f, 10.0f, 140.0f },	// L_Point3
-	{ -38.0f, 10.0f, 160.0f },	// L_Point4
-	{ -38.0f, 10.0f, 180.0f },	// L_Point5
+	{ -38.0f, 10.0f, 200.0f },	// L_Point3
+	{ -38.0f, 10.0f, 350.0f },	// L_Point4
+	{ -38.0f, 10.0f, 500.0f },	// L_Point5
 };
 
 /*------------------------------------*/
@@ -37,6 +51,7 @@ void EnemyManager::Init()
 	totemPoleModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::TotemPole));
 	ghostModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Ghost));
 	darumaModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Daruma));
+	hauntedModel = std::make_unique<SkinnedMesh>(FRAMEWORK->GetDevice(), GetModelPath(ModelAttribute::Haunted));
 
 	for (auto& it : enemy)
 	{
@@ -53,6 +68,7 @@ void EnemyManager::Init()
 	sound[SoundType::MoveGhost] = new Audio("Data/Sound/幽霊飛んでる音.wav");
 	sound[SoundType::MovePole] = new Audio("Data/Sound/重い金属引きずる音.wav");
 	sound[SoundType::DeadMe] = new Audio("Data/Sound/お化け消える.wav");
+	sound[SoundType::AppearanceHaunted] = new Audio("Data/Sound/通り過ぎる敵が出現した音.wav");
 	for (auto& it : soundVol)it = 1;
 }
 
@@ -227,6 +243,26 @@ void Enemy::Render(DirectX::XMMATRIX& _V, DirectX::XMMATRIX& _P)
 			color
 		);
 		break;
+	case Enemy::EnemyType::Haunted:	// TODO : Enemy 追加 render model
+		if (nowPoint == Point::L_Haunted)
+		{
+			R = XMMatrixRotationRollPitchYaw(0.0f, XMConvertToRadians(90.0f), 0.0f);
+		}
+		else
+		{
+			R = XMMatrixRotationRollPitchYaw(0.0f, XMConvertToRadians(-90.0f), 0.0f);
+		}
+		W = S * R * T;
+		WVP = W * _V * _P;
+
+		EnemyManager::Get().hauntedModel->Render(
+			FRAMEWORK->GetDeviceContext(),
+			Float4x4(WVP),
+			Float4x4(W),
+			light,
+			color
+		);
+		break;
 	default:
 		break;
 	}
@@ -257,6 +293,9 @@ void Enemy::Move()
 		break;
 	case Enemy::EnemyType::Daruma:
 		MoveEnemy1();
+		break;
+	case Enemy::EnemyType::Haunted:
+		MoveHaunted();
 		break;
 	default:
 		break;
@@ -335,6 +374,26 @@ void Enemy::MoveEnemy3()
 	}
 }
 
+void Enemy::MoveHaunted()
+{
+	if (nowPoint == Point::L_Haunted)
+	{
+		pos.x += 80.0f / 120.0f;	// 80.0fは　生成位置(-40) ~ 消す位置(40)の幅
+	}
+	else
+	{
+		pos.x -= 80.0f / 120.0f;	// 80.0fは　生成位置(40) ~ 消す位置(-40)の幅
+	}
+	EnemyManager::Get().sound[EnemyManager::Get().SoundType::AppearanceHaunted]->SetPosition(pos);
+
+	// 消す処理
+	if (pos.x > 40.0f || pos.x < -40.0f)
+	{
+		isEnable = false;
+	}
+}
+
+
 
 /*------------------------------------*/
 //	Enemyの生成
@@ -343,10 +402,28 @@ void Enemy::Generate(
 	EnemyType _type, Point _generatePoint)
 {
 	pos = pointPosition[_generatePoint];
-	if (_type == EnemyType::Daruma) pos.y = 0.0f;
 	type = _type;
-	if (type == EnemyType::Ghost)	scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
-	else							scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+	switch (type)
+	{
+	case EnemyType::TotemPole:
+		scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+
+	case EnemyType::Ghost:
+		scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+
+	case EnemyType::Daruma:
+		pos.y = 0.0f;
+		scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+
+	case EnemyType::Haunted:	// TODO : Enemy 追加 生成処理
+		EnemyManager::Get().sound[EnemyManager::Get().SoundType::AppearanceHaunted]->SetPosition(DirectX::XMFLOAT3(0, 0, 0));
+		EnemyManager::Get().sound[EnemyManager::Get().SoundType::AppearanceHaunted]->Play(false);
+		scale = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+	}
 	nowPoint = _generatePoint;
 	isEnable = true;
 	isPreparationErase = false;

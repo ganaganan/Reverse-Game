@@ -19,6 +19,7 @@ public:
 		TotemPole,	// Enemy3
 		Ghost,		// Enemy2
 		Daruma,		// Enemy1
+		Haunted,
 	};
 	enum Point : int
 	{
@@ -32,6 +33,8 @@ public:
 		L_Point3,
 		L_Point4,
 		L_Point5,
+		R_Haunted,
+		L_Haunted,
 	};
 
 	DirectX::XMFLOAT3 pos;
@@ -63,6 +66,7 @@ public:
 	void MoveEnemy2();
 	void MoveEnemy3();
 	void MoveCross();
+	void MoveHaunted();
 
 	void MoveRightPoint(bool _isGhost = false);
 	void MoveLeftPoint(bool _isGhost = false);
@@ -83,6 +87,7 @@ public:
 		MovePole,
 		MoveGhost,
 		MoveDaruma,
+		AppearanceHaunted,
 		DeadMe,
 		Max,
 	};
@@ -98,6 +103,7 @@ public:
 	std::unique_ptr<SkinnedMesh> totemPoleModel;
 	std::unique_ptr<SkinnedMesh> ghostModel;
 	std::unique_ptr<SkinnedMesh> darumaModel;
+	std::unique_ptr<SkinnedMesh> hauntedModel;
 
 private:
 	EnemyManager() {}

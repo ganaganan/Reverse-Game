@@ -10,6 +10,8 @@ enum class ModelAttribute
 	Daruma,
 	RightDoor,
 	LeftDoor,
+	Haunted,	// TODO : FilePath ’Ç‰Á tag
+	KowaiStage,
 };
 
 enum class TextureAttribute

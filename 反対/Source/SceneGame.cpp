@@ -37,12 +37,11 @@ void SceneGame::Init()
 	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
-	debugLightRange[0] = 80.0f;
-	debugLightRange[1] = 80.0f;
-	debugLightRange[2] = 100.0f;
-	debugLightRange[3] = 95.0f;
-	debugLightRange[4] = 95.0f;
-
+	debugLightRange[0] = 50.0f;
+	debugLightRange[1] = 50.0f;
+	debugLightRange[2] = 110.0f;
+	debugLightRange[3] = 110.0f;
+	debugLightRange[4] = 110.0f;
 
 	// コンスタントバッファ作成
 	CreateConstantBuffer(&constantBuffer, sizeof(LightConstantBuffer));
@@ -153,7 +152,7 @@ void SceneGame::Render()
 	UI::Get().sprBlack->Begin();
 	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYUp), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2 ),
 		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2 ),
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2 + 100),
 		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	UI::Get().sprBlack->End();
 	if (canSeeString)
@@ -441,8 +440,8 @@ int SceneGame2::nightTime;
 void SceneGame2::Init()
 {
 	// エネミーの生成間隔
-	GENERATE_ENEMY_MIN = 1320;
-	GENERATE_ENEMY_MAX = 1500;
+	GENERATE_ENEMY_MIN = 840;
+	GENERATE_ENEMY_MAX = 900;
 	// 敵ごとの生成確率
 	GENERATE_PER_ENEMY1 = 40;
 	GENERATE_PER_ENEMY2 = 40;
@@ -462,11 +461,11 @@ void SceneGame2::Init()
 	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
-	debugLightRange[0] = 80.0f;
-	debugLightRange[1] = 80.0f;
-	debugLightRange[2] = 100.0f;
-	debugLightRange[3] = 95.0f;
-	debugLightRange[4] = 95.0f;
+	debugLightRange[0] = 50.0f;
+	debugLightRange[1] = 50.0f;
+	debugLightRange[2] = 110.0f;
+	debugLightRange[3] = 110.0f;
+	debugLightRange[4] = 110.0f;
 
 
 	// コンスタントバッファ作成
@@ -583,7 +582,7 @@ void SceneGame2::Render()
 	UI::Get().sprBlack->Begin();
 	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYUp), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2),
 		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2),
+	UI::Get().sprBlack->Draw(DirectX::XMFLOAT2(0.0f, fadePosYDown), DirectX::XMFLOAT2(framework::SCREEN_WIDTH + 100.0f, framework::SCREEN_HEIGHT / 2 + 100),
 		DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1980, 1080), DirectX::XMFLOAT2(0.0f, 0.0f), 0.0f, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	UI::Get().sprBlack->End();
 	if (canSeeString)
@@ -863,8 +862,8 @@ int SceneGame3::nightTime;
 void SceneGame3::Init()
 {
 	// エネミーの生成間隔
-	GENERATE_ENEMY_MIN = 1150;
-	GENERATE_ENEMY_MAX = 1300;
+	GENERATE_ENEMY_MIN = 500;
+	GENERATE_ENEMY_MAX = 540;
 	// 敵ごとの生成確率
 	GENERATE_PER_ENEMY1 = 30;
 	GENERATE_PER_ENEMY2 = 40;
@@ -885,11 +884,11 @@ void SceneGame3::Init()
 	debugLightPos[4] = DirectX::XMFLOAT3(38.0f, 25.0f, 55.0f);
 
 
-	debugLightRange[0] = 80.0f;
-	debugLightRange[1] = 80.0f;
-	debugLightRange[2] = 100.0f;
-	debugLightRange[3] = 95.0f;
-	debugLightRange[4] = 95.0f;
+	debugLightRange[0] = 50.0f;
+	debugLightRange[1] = 50.0f;
+	debugLightRange[2] = 105.0f;
+	debugLightRange[3] = 110.0f;
+	debugLightRange[4] = 110.0f;
 
 
 	// コンスタントバッファ作成
@@ -1126,6 +1125,18 @@ void SceneGame3::GenerateEnemy()
 		int tmp = GENERATE_ENEMY_MAX - GENERATE_ENEMY_MIN;
 		thisTimeGeneratePerCount = rand() % tmp + GENERATE_ENEMY_MIN;
 		generateEnemyCount = 0;
+	}
+
+	if (Sound::Get().GetSoundType() == Sound::SoundType::Footsteps && Sound::Get().playbackTime <= 1)
+	{
+		if (rand() % 200 >= 100)
+		{
+			EnemyManager::Get().GenerateEnemy(Enemy::EnemyType::Haunted, Enemy::Point::R_Haunted);
+		}
+		else
+		{
+			EnemyManager::Get().GenerateEnemy(Enemy::EnemyType::Haunted, Enemy::Point::L_Haunted);
+		}
 	}
 }
 

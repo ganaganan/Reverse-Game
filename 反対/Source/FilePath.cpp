@@ -16,6 +16,10 @@ char* GetModelPath(ModelAttribute fileAttribute)
 		return "Data/Models/door_Right.fbx";	// break;
 	case ModelAttribute::LeftDoor:
 		return "Data/Models/door_Left.fbx";		// break;
+	case ModelAttribute::Haunted:				// TODO : FilePath ’Ç‰Á path
+		return "Data/Models/sudouri.fbx";		// break;
+	case ModelAttribute::KowaiStage:
+		return "Data/Models/kowaisitsunai.fbx";	// break;
 	default:
 		return "NoData";						// break;
 	}
